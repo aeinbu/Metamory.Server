@@ -1,5 +1,19 @@
-# Template for a C # project with Seq running in a Development Container in Docker
+# Metamory.Server
 
-This template will set up two containers:
-- one for developing a .NET 7 application inside
-- one for running Seq server. Seq is used to aggregate the logs from Serilog
+## Development setup
+
+### Set up ASP.NET Core SSL certificate for development.
+At the command prompt, run:
+```console
+dotnet dev-certs https --trust
+```
+
+### To run the server
+At the command prompt, run:
+```console
+dotnet run --project Metamory.WebApi
+```
+
+## License and Copyright
+This project is open sourced under the MIT Licence. See [LICENSE.txt](./LICENSE.txt) for details.  
+Copyright (c) 2016-2023 Arjan Einbu
