@@ -15,7 +15,8 @@
 			"extensions": [
 				"ms-dotnettools.csharp",
 				"josefpihrt-vscode.roslynator",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"formulahendry.dotnet-test-explorer"
 			]
 		}
 	},
