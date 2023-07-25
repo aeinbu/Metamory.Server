@@ -1,0 +1,4 @@
+is_global = true
+
+# Set severity for a specific analyzer
+dotnet_diagnostic.RCS1036.severity = none # Roslynator RCS1036: Remove unnecessary blank line
