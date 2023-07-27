@@ -30,7 +30,7 @@
 	// }
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "dotnet dev-certs https && dotnet restore"
+    "postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet user-secrets set Authentication:Schemes:Bearer:SigningKeys:0:Value PX674ghWi1nmjWJLcId0pbLPaZBRVZnBm6a4XyOZQ14= && cat artifacts/user-jwts.json > ~/.microsoft/usersecrets/c190885f-9527-40ab-b353-3b8539e29001/user-jwts.json"
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"

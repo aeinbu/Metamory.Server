@@ -37,7 +37,7 @@ namespace Metamory.Api
 										 orderby entry.Timestamp
 										 select entry;
 
-			Dictionary<string, string> currentStatuses = new Dictionary<string, string>();
+			Dictionary<string, string> currentStatuses = new();
 			foreach (var entry in statusEntriesBeforeNow)
 			{
 				currentStatuses[entry.VersionId] = entry.Status;

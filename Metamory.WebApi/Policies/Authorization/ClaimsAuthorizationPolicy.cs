@@ -37,9 +37,9 @@ namespace Metamory.WebApi.Policies.Authorization
 			}
 		}
 
-		private readonly List<Entry> _allowGetCurrentPublishedContentEntries = new List<Entry>();
-		private readonly List<Entry> _allowChangeContentStatusEntries = new List<Entry>();
-		private readonly List<Entry> _allowManageContentEntries = new List<Entry>();
+		private readonly List<Entry> _allowGetCurrentPublishedContentEntries = new();
+		private readonly List<Entry> _allowChangeContentStatusEntries = new();
+		private readonly List<Entry> _allowManageContentEntries = new();
 
 		public ClaimsAuthorizationPolicy(XElement authorizationPolicyElement)
 		{
@@ -96,7 +96,7 @@ namespace Metamory.WebApi.Policies.Authorization
 		    }
 
             return relevantEntries.Any(
-		        e => e.ClaimRules.Count() == 0 || e.ClaimRules.Any(
+		        e => !e.ClaimRules.Any() || e.ClaimRules.Any(
 		            rule => claimsPrincipal.Claims.Any(
 		                c => rule.ClaimName == c.Type && rule.Value.IsMatch(c.Value)
 		                )

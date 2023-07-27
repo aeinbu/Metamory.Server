@@ -32,17 +32,15 @@ namespace Metamory.Api.Providers.FileSystem
 			var contentFilePath = Path.Combine(_configuration.ContentRootPath, siteId, contentId, versionId);
 			var metadataFilePath = Path.ChangeExtension(contentFilePath, METADATA_EXTENSION);
 
-			using (var sr = new StreamReader(metadataFilePath))
-			using (var fileStream = File.OpenRead(contentFilePath))
-			{
-				var line = await sr.ReadLineAsync();
-				var metadata = ContentMetadataEntity.FromString(line);
+            using var sr = new StreamReader(metadataFilePath);
+            var line = await sr.ReadLineAsync();
+            var metadata = ContentMetadataEntity.FromString(line);
 
-				await fileStream.CopyToAsync(memoryStream);
+            using var fileStream = File.OpenRead(contentFilePath);
+            await fileStream.CopyToAsync(memoryStream);
 
-				return metadata.ContentType;
-			}
-		}
+            return metadata.ContentType;
+        }
 
 		public async Task AddContentAsync(string siteId, string contentId, string versionId, Stream contentStream, string contentType, DateTimeOffset now, string previousVersionId, string author, string label)
 		{
@@ -52,24 +50,22 @@ namespace Metamory.Api.Providers.FileSystem
 			var contentFilePath = Path.Combine(folderPath, versionId);
 			var metadataFilePath = Path.ChangeExtension(contentFilePath, METADATA_EXTENSION);
 
-			using (var sw = new StreamWriter(metadataFilePath, false))
-			using (var fileStream = File.OpenWrite(contentFilePath))
-			{
-				var metadata = new ContentMetadataEntity
-				{
-					Timestamp = now,
-					VersionId = versionId,
-					PreviousVersionId = previousVersionId,
-					Label = label,
-					ContentType = contentType,
-					Author = author
-				};
-				await sw.WriteLineAsync(metadata.ToString());
+            using var sw = new StreamWriter(metadataFilePath, false);
+            var metadata = new ContentMetadataEntity
+            {
+                Timestamp = now,
+                VersionId = versionId,
+                PreviousVersionId = previousVersionId,
+                Label = label,
+                ContentType = contentType,
+                Author = author
+            };
+            await sw.WriteLineAsync(metadata.ToString());
 
-				contentStream.Seek(0, SeekOrigin.Begin);
-				await contentStream.CopyToAsync(fileStream);
-			}
-		}
+            contentStream.Seek(0, SeekOrigin.Begin);
+            using var fileStream = File.OpenWrite(contentFilePath);
+            await contentStream.CopyToAsync(fileStream);
+        }
 
 		public async Task<IEnumerable<ContentMetadataEntity>> GetVersionsAsync(string siteId, string contentId)
 		{
@@ -89,11 +85,9 @@ namespace Metamory.Api.Providers.FileSystem
 
 		private async Task<ContentMetadataEntity> FromFile(string path)
 		{
-			using (var sr = new StreamReader(path))
-			{
-				var s = await sr.ReadLineAsync();
-				return ContentMetadataEntity.FromString(s);
-			}
-		}
+            using var sr = new StreamReader(path);
+            var s = await sr.ReadLineAsync();
+            return ContentMetadataEntity.FromString(s);
+        }
 	}
 }

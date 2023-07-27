@@ -29,20 +29,18 @@ namespace Metamory.Api.Providers.FileSystem
 		public async Task<IEnumerable<ContentStatusEntity>> GetStatusEntriesAsync(string siteId, string contentId)
 		{
 			var filePath = Path.Combine(_configuration.StatusRootPath, siteId, contentId, CONTENTSTATUS_FILENAME);
-			
-			if(!File.Exists(filePath))
+
+            if (!File.Exists(filePath))
 			{
 				return Enumerable.Empty<ContentStatusEntity>();
 			}
-			
-			using (var sr = new StreamReader(filePath))
-			{
-				var everything = await sr.ReadToEndAsync();
-				return everything.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
-								 .Where(line => !String.IsNullOrWhiteSpace(line) && !line.StartsWith("#"))
-								 .Select(line => ContentStatusEntity.FromString(line));
-			}
-		}
+
+            using var sr = new StreamReader(filePath);
+            var everything = await sr.ReadToEndAsync();
+            return everything.Split(new[] { Environment.NewLine }, StringSplitOptions.None)
+                             .Where(line => !String.IsNullOrWhiteSpace(line) && !line.StartsWith("#"))
+                             .Select(line => ContentStatusEntity.FromString(line));
+        }
 
 
 		public async Task AddStatusEntryAsync(string siteId, ContentStatusEntity statusEntry)
@@ -52,15 +50,13 @@ namespace Metamory.Api.Providers.FileSystem
 
 			var filePath = Path.Combine(folderPath, CONTENTSTATUS_FILENAME);
 			var writeHeader = !File.Exists(filePath);
-			using (var sw = new StreamWriter(filePath, true))
-			{
-				if(writeHeader)
-				{
-					await sw.WriteLineAsync($"#Timestamp;ContentId;VersionId;StartTime;Status;Responsible");
-				}
+            using var sw = new StreamWriter(filePath, true);
+            if (writeHeader)
+            {
+                await sw.WriteLineAsync("#Timestamp;ContentId;VersionId;StartTime;Status;Responsible");
+            }
 
-				await sw.WriteLineAsync(statusEntry.ToString());
-			}
-		}
+            await sw.WriteLineAsync(statusEntry.ToString());
+        }
 	}
 }

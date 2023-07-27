@@ -19,7 +19,7 @@ namespace Metamory.Api.Tests
 		public void GetCurrentlyPublishedVersion_NoRows_ReturnsNull()
 		{
 			var dtNow = new DateTimeOffset(2015, 1, 1, 7, 0, 0, TimeSpan.FromHours(-2));
-			var statusEntries = new ContentStatusEntity[0];
+			var statusEntries = Array.Empty<ContentStatusEntity>();
 
 			var currentVersion = _versioningSvc.GetCurrentlyPublishedVersion(dtNow, statusEntries);
 
@@ -196,7 +196,7 @@ namespace Metamory.Api.Tests
 		public void GetCurrentStatuses_NoStatusEntries_EmptyDictionary()
 		{
 			var dtNow = new DateTimeOffset(2015, 1, 1, 7, 0, 0, TimeSpan.FromHours(-2));
-			var statusEntries = new ContentStatusEntity[0];
+			var statusEntries = Array.Empty<ContentStatusEntity>();
 
 			var statuses = _versioningSvc.GetCurrentStatuses(dtNow, statusEntries);
 
@@ -215,7 +215,7 @@ namespace Metamory.Api.Tests
 
 			var statuses = _versioningSvc.GetCurrentStatuses(dtNow, statusEntries);
 
-			Assert.That(statuses.Count, Is.EqualTo(1));
+			Assert.That(statuses, Has.Count.EqualTo(1));
 		}
 
 		[Test]
@@ -231,7 +231,7 @@ namespace Metamory.Api.Tests
 
 			var statuses = _versioningSvc.GetCurrentStatuses(dtNow, statusEntries);
 
-			Assert.That(statuses.Count, Is.EqualTo(2));
+			Assert.That(statuses, Has.Count.EqualTo(2));
 		}
 
 		[Test]
@@ -264,7 +264,7 @@ namespace Metamory.Api.Tests
 
 			var statuses = _versioningSvc.GetCurrentStatuses(dtNow, statusEntries);
 
-			Assert.That(statuses.Count, Is.EqualTo(1));
+			Assert.That(statuses, Has.Count.EqualTo(1));
 			Assert.That(statuses["1"], Is.EqualTo("Draft"));
 		}
 	}
