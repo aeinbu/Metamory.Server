@@ -2,6 +2,18 @@
 
 ## Development setup
 
+You can set the `connectionString` for the azure storage account in user-secrets, like this:
+```console
+dotnet user-secrets -p Metamory.WebApi set "AzureStorageRepositoryConfiguration:connectionString" "<you connectionstring here>"
+```
+
+THe connectionsstring will look like this
+```
+DefaultEndpointsProtocol=https;AccountName=<accountnamae here>;AccountKey=<accountkey here>
+
+```
+
+
 ### Set up ASP.NET Core SSL certificate for development.
 At the command prompt, run:
 ```console

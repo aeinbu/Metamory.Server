@@ -51,15 +51,8 @@ namespace Metamory.Api
 			contentId = _canonicalizeService.Canonicalize(contentId);
 			versionId = _canonicalizeService.Canonicalize(versionId);
 
-			var statusEntry = new ContentStatusEntity
-			{
-				ContentId = contentId,
-				Timestamp = now,
-				StartTime = startDate ?? now,
-				VersionId = versionId,
-				Status = status,
-				Responsible = responsible
-			};
+			var statusEntry = _statusRepository.CreateContentStatusEntity(contentId, now, startDate ?? now, versionId, status, responsible);
+
 			await _statusRepository.AddStatusEntryAsync(siteId, statusEntry);
 		}
 
@@ -124,14 +117,8 @@ namespace Metamory.Api
 			var versionId = Guid.NewGuid().ToString();
 
 			var status = "Draft";
-			var statusEntry = new ContentStatusEntity
-			{
-				ContentId = contentId,
-				Timestamp = now,
-				StartTime = now,
-				VersionId = versionId,
-				Status = status
-			};
+			var responsible = "N/A"; //TODO: what? who? logged on user? IPrincipal?
+			var statusEntry = _statusRepository.CreateContentStatusEntity(contentId, now, now, versionId, status, responsible);
 			var t1 = _statusRepository.AddStatusEntryAsync(siteId, statusEntry);
 
 			var t2 = _contentRepository.AddContentAsync(siteId, contentId, versionId, contentStream, contentType, now, previousVersionId, author, label);

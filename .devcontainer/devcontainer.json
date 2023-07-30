@@ -7,8 +7,13 @@
     "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
+	"features": {
+		// "ghcr.io/azure/azure-dev/azd:0": {},
+		// "ghcr.io/devcontainers/features/azure-cli:1": {
+		// 	"installUsingPython": true,
+		// 	"version": "latest"
+		// }
+	},
 	// Configure tool-specific properties.
 	"customizations": {
 		"vscode": {
@@ -16,7 +21,8 @@
 				"ms-dotnettools.csharp",
 				"josefpihrt-vscode.roslynator",
 				"eamodio.gitlens",
-				"formulahendry.dotnet-test-explorer"
+				"formulahendry.dotnet-test-explorer",
+				"ms-azuretools.vscode-azurestorage"
 			]
 		}
 	},
@@ -30,7 +36,7 @@
 	// }
 
     // Use 'postCreateCommand' to run commands after the container is created.
-    "postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet user-secrets set Authentication:Schemes:Bearer:SigningKeys:0:Value PX674ghWi1nmjWJLcId0pbLPaZBRVZnBm6a4XyOZQ14= && cat artifacts/user-jwts.json > ~/.microsoft/usersecrets/c190885f-9527-40ab-b353-3b8539e29001/user-jwts.json"
+    "postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet user-secrets set -p Metamory.WebApi Authentication:Schemes:Bearer:SigningKeys:0:Value PX674ghWi1nmjWJLcId0pbLPaZBRVZnBm6a4XyOZQ14= && cat artifacts/user-jwts.json > ~/.microsoft/usersecrets/c190885f-9527-40ab-b353-3b8539e29001/user-jwts.json"
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"

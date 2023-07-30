@@ -7,7 +7,7 @@
 			//TODO: replace or remove invalid characters in file or directory name
 			// Invalid chars: /\:*%
 			// Check if I can use url-escaping rules.
-			return id;
+			return id?.Replace("-", "");
 		}
 	}
 }
