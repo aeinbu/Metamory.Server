@@ -53,7 +53,7 @@ namespace Metamory.WebApi
         {
             var services = builder.Services;
 
-            services.Configure<FileRepositoryConfiguration>(builder.Configuration.GetSection("FileRepositoryConfiguration"));
+            services.Configure<FileSystemRepositoryConfiguration>(builder.Configuration.GetSection("FileSystemRepositoryConfiguration"));
 
             services.AddTransient<ContentManagementService>();
             services.AddTransient<IStatusRepository, FileStatusRepository>();

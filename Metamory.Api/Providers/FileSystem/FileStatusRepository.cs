@@ -20,7 +20,7 @@ namespace Metamory.Api.Providers.FileSystem
 		private readonly IFileStatusRepositoryConfiguration _configuration;
 
 
-		public FileStatusRepository(IOptions<FileRepositoryConfiguration> configurationAccessor)
+		public FileStatusRepository(IOptions<FileSystemRepositoryConfiguration> configurationAccessor)
 		{
 			_configuration = configurationAccessor.Value;
 		}

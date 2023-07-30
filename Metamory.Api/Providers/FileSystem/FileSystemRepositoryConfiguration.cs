@@ -2,7 +2,7 @@
 
 namespace Metamory.Api.Providers.FileSystem
 {
-	public class FileRepositoryConfiguration : IFileContentRepositoryConfiguration, IFileStatusRepositoryConfiguration
+	public class FileSystemRepositoryConfiguration : IFileContentRepositoryConfiguration, IFileStatusRepositoryConfiguration
 	{
 		public string RootPath { get; set; }
 
