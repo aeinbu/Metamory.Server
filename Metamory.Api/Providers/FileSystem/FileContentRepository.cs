@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Metamory.Api.Repositories;
 using Microsoft.Extensions.Options;
 
 namespace Metamory.Api.Providers.FileSystem
 {
-	public interface IFileContentRepositoryConfiguration
+    public interface IFileContentRepositoryConfiguration
 	{
 		string ContentRootPath { get; }
 	}

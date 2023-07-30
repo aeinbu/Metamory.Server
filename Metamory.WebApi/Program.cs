@@ -2,8 +2,6 @@
 using Metamory.Api;
 using Metamory.Api.Providers.FileSystem;
 using Metamory.Api.Repositories;
-using Metamory.WebApi.Policies;
-using Metamory.WebApi.Policies.Authorization;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Metamory.WebApi
@@ -58,7 +56,6 @@ namespace Metamory.WebApi
             services.Configure<FileRepositoryConfiguration>(builder.Configuration.GetSection("FileRepositoryConfiguration"));
 
             services.AddTransient<ContentManagementService>();
-            services.AddTransient<IAuthorizationPolicy, NoAuthorizationPolicy>();
             services.AddTransient<IStatusRepository, FileStatusRepository>();
             services.AddTransient<IContentRepository, FileContentRepository>();
             services.AddTransient<VersioningService>();

@@ -1,10 +1,8 @@
 using System.Net;
 using System.Text;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Metamory.Api;
 using Metamory.WebApi.Models.WebApi.Content;
-using Metamory.WebApi.Policies;
 using Metamory.WebApi.Utils;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
@@ -16,13 +14,11 @@ namespace Metamory.WebApi.Controllers.WebApi
 	public class ContentUploadController : ControllerBase
 	{
 		private readonly ContentManagementService _contentManagementService;
-		private readonly IAuthorizationPolicy _authPolicy;
 
 
-		public ContentUploadController(ContentManagementService contentManagementService, IAuthorizationPolicy authPolicy)
+		public ContentUploadController(ContentManagementService contentManagementService)
 		{
 			_contentManagementService = contentManagementService;
-			_authPolicy = authPolicy;
 		}
 
 
@@ -30,11 +26,6 @@ namespace Metamory.WebApi.Controllers.WebApi
 		[HttpPost, Route("content/{siteId}/{contentId}")]
 		public async Task<IActionResult> Post(string siteId, string contentId, HttpRequestMessage requestMessage)
 		{
-			if (!_authPolicy.AllowManageContent(siteId, contentId, User))
-			{
-				return new StatusCodeResult((int)(User.Identity.IsAuthenticated ? HttpStatusCode.Forbidden : HttpStatusCode.Unauthorized));
-			}
-
 			var model = this.Request.HasFormContentType
                 ? await GetPostContentModelFromFormAsync(siteId, contentId)
                 : await GetPostContentModelFromAjaxAsync(siteId, contentId);
