@@ -12,12 +12,12 @@ namespace Metamory.Api
 		private readonly IStatusRepository _statusRepository;
 		private readonly IContentRepository _contentRepository;
 		private readonly VersioningService _versioningService;
-		private readonly CanonicalizeService _canonicalizeService;
+		private readonly ICanonicalizeService _canonicalizeService;
 
 		public ContentManagementService(IStatusRepository statusRepository,
 			IContentRepository contentRepository,
 			VersioningService versioningService,
-			CanonicalizeService canonicalizeService)
+			ICanonicalizeService canonicalizeService)
 		{
 			_statusRepository = statusRepository;
 			_contentRepository = contentRepository;

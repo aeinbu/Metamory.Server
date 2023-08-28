@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Metamory.Api.Repositories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Metamory.Api.Providers.FileSystem;
@@ -17,6 +19,17 @@ public interface IFileStatusRepositoryConfiguration
 
 public class FileStatusRepository : IStatusRepository
 {
+	public class Configurator
+	{
+		public Configurator(ConfigurationManager configuration, IServiceCollection services)
+		{
+			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
+			services.AddTransient<IStatusRepository, FileStatusRepository>();
+			services.AddTransient<IStatusRepository, FileStatusRepository>();
+		}
+	}
+
+
 	private const string CONTENTSTATUS_FILENAME = "StatusEntries.csv";
 	private readonly IFileStatusRepositoryConfiguration _configuration;
 

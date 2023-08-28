@@ -2,9 +2,12 @@ using Azure;
 using Azure.Data.Tables;
 using Azure.Data.Tables.Models;
 using Metamory.Api.Repositories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Metamory.Api.Providers.AzureStorage;
+
 
 public interface IAzureTableStatusRepositoryConfiguration
 {
@@ -14,6 +17,18 @@ public interface IAzureTableStatusRepositoryConfiguration
 
 public class AzureTableStatusRepository : IStatusRepository
 {
+    public class Configurator
+    {
+        public Configurator(ConfigurationManager configuration, IServiceCollection services)
+        {
+            services.Configure<AzureStorageRepositoryConfiguration>(configuration.GetSection("AzureStorageRepositoryConfiguration"));
+            services.AddTransient<IStatusRepository, AzureTableStatusRepository>();
+            services.AddTransient<ICanonicalizeService, AzureCanonicalizeService>();
+        }
+    }
+
+
+
     private string _connectionString;
     // private readonly TableClient _tableClient;
     // private readonly TableServiceClient _tableServiceClient;

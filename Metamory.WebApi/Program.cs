@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Reflection;
+using System.Security.Claims;
 using Metamory.Api;
 using Metamory.Api.Providers.AzureStorage;
 using Metamory.Api.Providers.FileSystem;
@@ -51,20 +52,27 @@ internal static class Program
 
     private static void RegisterMetamoryServices(this WebApplicationBuilder builder)
     {
+        var configuration = builder.Configuration;
         var services = builder.Services;
 
-        services.Configure<AzureStorageRepositoryConfiguration>(builder.Configuration.GetSection("AzureStorageRepositoryConfiguration"));
+        // // services.Configure<AzureStorageRepositoryConfiguration>(builder.Configuration.GetSection("AzureStorageRepositoryConfiguration"));
         // services.Configure<FileSystemRepositoryConfiguration>(builder.Configuration.GetSection("FileSystemRepositoryConfiguration"));
 
+        ConfigureProvider(configuration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
+        ConfigureProvider(configuration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
+
         services.AddTransient<ContentManagementService>();
-        services.AddTransient<IStatusRepository, AzureTableStatusRepository>();
-        services.AddTransient<IContentRepository, AzureBlobContentRepository>();
-        // services.AddTransient<IStatusRepository, FileStatusRepository>();
-        // services.AddTransient<IContentRepository, FileContentRepository>();
         services.AddTransient<VersioningService>();
-        services.AddTransient<CanonicalizeService>();
     }
 
+    private static void ConfigureProvider(IConfigurationSection providerConfiguration, ConfigurationManager configuration, IServiceCollection services)
+    {
+        var assemblyFile = providerConfiguration.GetValue<string>("AssemblyFile");
+        var typeName = providerConfiguration.GetValue<string>("TypeName") + "+Configurator";
+
+        object[] constructorParams = new object[] { configuration, services };
+        Activator.CreateInstanceFrom(assemblyFile, typeName, false, BindingFlags.CreateInstance, null, constructorParams, System.Globalization.CultureInfo.CurrentCulture, (object[])null);
+    }
 
     private static void ConfigureApp(this WebApplication app)
     {
@@ -82,4 +90,17 @@ internal static class Program
 
         app.MapControllers();
     }
+}
+
+public class ArjansTest{
+    public ArjansTest(ConfigurationManager configuration, IServiceCollection services)
+    {
+        services.Configure<AzureStorageRepositoryConfiguration>(configuration.GetSection("AzureStorageRepositoryConfiguration"));
+        // services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
+
+        services.AddTransient<IStatusRepository, AzureTableStatusRepository>();
+        services.AddTransient<IContentRepository, AzureBlobContentRepository>();
+        // services.AddTransient<IStatusRepository, FileStatusRepository>();
+        // services.AddTransient<IContentRepository, FileContentRepository>();
+   }
 }

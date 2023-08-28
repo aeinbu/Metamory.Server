@@ -1,8 +1,8 @@
-namespace Metamory.Api.Providers.AzureStorage
+namespace Metamory.Api.Providers.AzureStorage;
+
+
+public class AzureStorageRepositoryConfiguration : IAzureBlobContentRepositoryConfiguration, IAzureTableStatusRepositoryConfiguration
 {
-    public class AzureStorageRepositoryConfiguration : IAzureBlobContentRepositoryConfiguration, IAzureTableStatusRepositoryConfiguration
-    {
-        public string AccountName { get; set; }
-        public string ConnectionString { get; set; }
-    }
+    public string AccountName { get; set; }
+    public string ConnectionString { get; set; }
 }

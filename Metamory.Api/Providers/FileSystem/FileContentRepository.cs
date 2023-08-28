@@ -1,4 +1,6 @@
 using Metamory.Api.Repositories;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Metamory.Api.Providers.FileSystem;
@@ -12,6 +14,17 @@ public interface IFileContentRepositoryConfiguration
 
 public class FileContentRepository : IContentRepository
 {
+	public class Configurator
+	{
+		public Configurator(ConfigurationManager configuration, IServiceCollection services)
+		{
+			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
+			services.AddTransient<IContentRepository, FileContentRepository>();
+            services.AddTransient<ICanonicalizeService, FileCanonicalizeService>();
+		}
+	}
+	
+	
 	private const string METADATA_EXTENSION = "metadata.csv";
 
 	private readonly IFileContentRepositoryConfiguration _configuration;
@@ -20,7 +33,8 @@ public class FileContentRepository : IContentRepository
 	public FileContentRepository(IOptions<FileSystemRepositoryConfiguration> configurationAccessor)
 	{
 		_configuration = configurationAccessor.Value;
-		if(_configuration.ContentRootPath == null){
+		if (_configuration.ContentRootPath == null)
+		{
 			throw new Exception("Missing or invalid configuration for FileSystemRepositoryConfiguration");
 		}
 	}
