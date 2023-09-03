@@ -91,16 +91,3 @@ internal static class Program
         app.MapControllers();
     }
 }
-
-public class ArjansTest{
-    public ArjansTest(ConfigurationManager configuration, IServiceCollection services)
-    {
-        services.Configure<AzureStorageRepositoryConfiguration>(configuration.GetSection("AzureStorageRepositoryConfiguration"));
-        // services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
-
-        services.AddTransient<IStatusRepository, AzureTableStatusRepository>();
-        services.AddTransient<IContentRepository, AzureBlobContentRepository>();
-        // services.AddTransient<IStatusRepository, FileStatusRepository>();
-        // services.AddTransient<IContentRepository, FileContentRepository>();
-   }
-}

@@ -15,7 +15,7 @@ namespace Metamory.Api.Tests
 			var statusRepository = A.Fake<IStatusRepository>();
 			var contentRepository = A.Fake<IContentRepository>();
 			var versioningService = A.Fake<VersioningService>();
-			var canonicalizeService = A.Fake<CanonicalizeService>();
+			var canonicalizeService = A.Fake<ICanonicalizeService>();
 
 			_contentVersioningSvc = new ContentManagementService(statusRepository, contentRepository, versioningService, canonicalizeService);
 		}

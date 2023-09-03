@@ -2,84 +2,84 @@ using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Metamory.Api;
-using Metamory.WebApi.Models.WebApi.Content;
 using Metamory.WebApi.Utils;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 
-namespace Metamory.WebApi.Controllers.WebApi
+namespace Metamory.WebApi.Controllers.WebApi;
+
+
+[StopwatchFilter]
+// [AllowAnonymous]
+[Authorize(Policy = "SiteId")]
+public class ContentUploadController : ControllerBase
 {
-    [StopwatchFilter]
-    [Authorize(Policy = "SiteId")]
-	public class ContentUploadController : ControllerBase
+	private readonly ContentManagementService _contentManagementService;
+
+
+	public ContentUploadController(ContentManagementService contentManagementService)
 	{
-		private readonly ContentManagementService _contentManagementService;
+		_contentManagementService = contentManagementService;
+	}
 
 
-		public ContentUploadController(ContentManagementService contentManagementService)
+	[Authorize(Policy = AuthPolicies.ContributorRole)]
+	[HttpPost, Route("content/{siteId}/{contentId}")]
+	public async Task<IActionResult> Post(string siteId, string contentId, HttpRequestMessage requestMessage)
+	{
+		var model = this.Request.HasFormContentType
+			? await GetPostContentModelFromFormAsync(siteId, contentId)
+			: await GetPostContentModelFromAjaxAsync(siteId, contentId);
+
+		if (model.ContentStream != null && model.ContentType != null)
 		{
-			_contentManagementService = contentManagementService;
+			var contentMetadata = await _contentManagementService.StoreAsync(siteId, contentId, DateTimeOffset.Now,
+				model.ContentStream, model.ContentType, model.PreviousVersionId, model.Author, model.Label);
+			return Ok(contentMetadata);
 		}
 
+		return new StatusCodeResult((int)HttpStatusCode.BadRequest);
+	}
 
-		[Authorize(Policy = AuthPolicies.ContributorRole)]
-		[HttpPost, Route("content/{siteId}/{contentId}")]
-		public async Task<IActionResult> Post(string siteId, string contentId, HttpRequestMessage requestMessage)
+
+	private async Task<PostContentModel> GetPostContentModelFromAjaxAsync(string siteId, string contentId)
+	{
+		using var sr = new StreamReader(this.Request.Body);
+		string jsonBodyString = await sr.ReadToEndAsync();
+		var jsonBody = JObject.Parse(jsonBodyString);
+
+		string GetValue(string key)
 		{
-			var model = this.Request.HasFormContentType
-                ? await GetPostContentModelFromFormAsync(siteId, contentId)
-                : await GetPostContentModelFromAjaxAsync(siteId, contentId);
-
-            if (model.ContentStream != null && model.ContentType != null)
-			{
-				var contentMetadata = await _contentManagementService.StoreAsync(siteId, contentId, DateTimeOffset.Now,
-					model.ContentStream, model.ContentType, model.PreviousVersionId, model.Author, model.Label);
-				return Ok(contentMetadata);
-			}
-
-			return new StatusCodeResult((int)HttpStatusCode.BadRequest);
+			var val = jsonBody[key];
+			return val?.ToString();
 		}
 
-
-		private async Task<PostContentModel> GetPostContentModelFromAjaxAsync(string siteId, string contentId)
+		var model = new PostContentModel()
 		{
-            using var sr = new StreamReader(this.Request.Body);
-            string jsonBodyString = await sr.ReadToEndAsync();
-            var jsonBody = JObject.Parse(jsonBodyString);
+			Author = GetValue("author"),
+			Label = GetValue("label"),
+			PreviousVersionId = GetValue("previousVersionId"),
+			ContentType = GetValue("contentType"),
+			ContentStream = new MemoryStream(Encoding.UTF8.GetBytes(GetValue("content")))
+		};
 
-            string GetValue(string key)
-            {
-                var val = jsonBody[key];
-                return val?.ToString();
-            }
+		return model;
+	}
 
-            var model = new PostContentModel()
-            {
-                Author = GetValue("author"),
-                Label = GetValue("label"),
-                PreviousVersionId = GetValue("previousVersionId"),
-                ContentType = GetValue("contentType"),
-                ContentStream = new MemoryStream(Encoding.UTF8.GetBytes(GetValue("content")))
-            };
+	private async Task<PostContentModel> GetPostContentModelFromFormAsync(string siteId, string contentId)
+	{
+		var formValues = await this.Request.ReadFormAsync();
+		string GetValue(string key) => formValues[key];
 
-            return model;
-        }
-
-		private async Task<PostContentModel> GetPostContentModelFromFormAsync(string siteId, string contentId)
+		var model = new PostContentModel()
 		{
-			var formValues = await this.Request.ReadFormAsync();
-            string GetValue(string key) => formValues[key];
+			Author = GetValue("author"),
+			Label = GetValue("label"),
+			PreviousVersionId = GetValue("previousVersionId"),
+			ContentType = GetValue("contentType"),
+			ContentStream = new MemoryStream(Encoding.UTF8.GetBytes(GetValue("content")))
+		};
 
-            var model = new PostContentModel()
-			{
-				Author = GetValue("author"),
-				Label = GetValue("label"),
-				PreviousVersionId = GetValue("previousVersionId"),
-				ContentType = GetValue("contentType"),
-				ContentStream = new MemoryStream(Encoding.UTF8.GetBytes(GetValue("content")))
-			};
-
-			return model;
-		}
+		return model;
 	}
 }
