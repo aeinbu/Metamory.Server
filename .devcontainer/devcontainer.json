@@ -8,6 +8,12 @@
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
+		// Remove this if node.js is no longer needed
+		"ghcr.io/devcontainers/features/node:1": {
+			"nodeGypDependencies": true,
+			"version": "lts",
+			"nvmVersion": "latest"
+		}
 		// "ghcr.io/azure/azure-dev/azd:0": {},
 		// "ghcr.io/devcontainers/features/azure-cli:1": {
 		// 	"installUsingPython": true,

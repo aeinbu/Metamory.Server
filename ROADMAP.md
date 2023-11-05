@@ -6,12 +6,15 @@
 
 - AzureBlobStatusRepository using append-blobs
 
-- support for amazon s3 and other data stores
+- support for amazon s3, postgres, ms sql, mongo and other data stores
 
 - sitesettings.csv or .json pr. siteId
   - Disable whole site
     - On - Expected functionality
     - Off - Site is down 
+
+- Certificates
+- OAuth providers
 
 sitesettings.json
 ```json

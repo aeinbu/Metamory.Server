@@ -1,16 +1,21 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics;
+using System.Reflection;
 using System.Security.Claims;
 using Metamory.Api;
 using Metamory.Api.Providers.AzureStorage;
 using Metamory.Api.Providers.FileSystem;
 using Metamory.Api.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Metamory.WebApi;
 
-
 internal static class Program
 {
+    public const string claimNamespace = "https://metamory.server";
+
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -30,14 +35,28 @@ internal static class Program
 
         services.AddHttpContextAccessor();
 
-        services.AddAuthentication().AddJwtBearer();
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.Audience = "https://metamory.server/";
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                RoleClaimType = $"{claimNamespace}/roles",
+            };
+        });
+
         services.AddAuthorization(options =>
         {
             // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
             // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
+
             options.AddPolicy(AuthPolicies.EditorRole, policy => policy.RequireRole("editor"));
             options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.RequireRole("editor", "contributor"));
             options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.RequireRole("editor", "contributor", "reviewer"));
+
             options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(new SiteIdRequirement()));
         });
         builder.Services.AddSingleton<IAuthorizationHandler, SiteIdRequirementHandler>();
@@ -85,6 +104,8 @@ internal static class Program
         {
             app.UseHttpsRedirection();
         }
+
+        app.UseAuthentication();
 
         // app.UseCors();
 
