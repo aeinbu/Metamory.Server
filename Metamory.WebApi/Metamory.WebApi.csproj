@@ -7,7 +7,17 @@
 		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
 		<UserSecretsId>c190885f-9527-40ab-b353-3b8539e29001</UserSecretsId>
 		<RootNamespace>Metamory.WebApi</RootNamespace>
-  	</PropertyGroup>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<ContainerRepository>metamory-test-image</ContainerRepository>
+		<ContainerRuntimeIdentifier>linux-arm64</ContainerRuntimeIdentifier>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="5000" />
+		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTPS_PORTS" Value="5001" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.9" />

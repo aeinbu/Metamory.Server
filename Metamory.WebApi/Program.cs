@@ -74,8 +74,11 @@ internal static class Program
         var configuration = builder.Configuration;
         var services = builder.Services;
 
-        // // services.Configure<AzureStorageRepositoryConfiguration>(builder.Configuration.GetSection("AzureStorageRepositoryConfiguration"));
-        // services.Configure<FileSystemRepositoryConfiguration>(builder.Configuration.GetSection("FileSystemRepositoryConfiguration"));
+        // new Metamory.Api.Providers.AzureStorage.AzureBlobContentRepository.Configurator(builder.Configuration, services);
+        // new Metamory.Api.Providers.AzureStorage.AzureTableStatusRepository.Configurator(builder.Configuration, services);
+
+        // new Metamory.Api.Providers.FileSystem.FileContentRepository.Configurator(builder.Configuration, services);
+        // new Metamory.Api.Providers.FileSystem.FileStatusRepository.Configurator(builder.Configuration, services);
 
         ConfigureProvider(configuration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
         ConfigureProvider(configuration.GetSection("Providers:StatusRepository"), builder.Configuration, services);

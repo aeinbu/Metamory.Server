@@ -16,6 +16,6 @@ public class StopwatchFilterAttribute : ActionFilterAttribute
 	public override void OnActionExecuted(ActionExecutedContext actionExecutedContext)
 	{
 		var elapsed = _stopwatch.Elapsed;
-		actionExecutedContext.HttpContext.Response.Headers.Add("X-Time-Taken", elapsed.ToString("c"));
+		actionExecutedContext.HttpContext.Response.Headers.Append("X-Time-Taken", elapsed.ToString("c"));
 	}
 }

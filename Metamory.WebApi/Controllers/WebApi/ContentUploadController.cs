@@ -5,13 +5,14 @@ using Metamory.Api;
 using Metamory.WebApi.Utils;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Metamory.WebApi.Controllers.WebApi;
 
 
 [StopwatchFilter]
 // [AllowAnonymous]
-[Authorize(Policy = "SiteId")]
+[Authorize(Policy = AuthPolicies.SiteIdClaim, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ContentUploadController : ControllerBase
 {
 	private readonly ContentManagementService _contentManagementService;

@@ -8,6 +8,7 @@
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
 		// Remove this if node.js is no longer needed
 		"ghcr.io/devcontainers/features/node:1": {
 			"nodeGypDependencies": true,
@@ -28,7 +29,8 @@
 				"josefpihrt-vscode.roslynator",
 				"eamodio.gitlens",
 				"formulahendry.dotnet-test-explorer",
-				"ms-azuretools.vscode-azurestorage"
+				"ms-azuretools.vscode-azurestorage",
+				"codeium.codeium"
 			]
 		}
 	},

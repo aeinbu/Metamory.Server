@@ -25,7 +25,6 @@ public class FileStatusRepository : IStatusRepository
 		{
 			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
 			services.AddTransient<IStatusRepository, FileStatusRepository>();
-			services.AddTransient<IStatusRepository, FileStatusRepository>();
 		}
 	}
 
