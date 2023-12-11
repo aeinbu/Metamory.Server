@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
@@ -10,17 +10,18 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<ContainerRepository>metamory-test-image</ContainerRepository>
+		<ContainerRepository>metamory-server</ContainerRepository>
 		<ContainerRuntimeIdentifier>linux-arm64</ContainerRuntimeIdentifier>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="5000" />
 		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTPS_PORTS" Value="5001" />
+		<ContainerEnvironmentVariable Include="ASPNETCORE_Kestrel__Certificates__Default__Path" Value="/https/cert.pfx" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.9" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
 

@@ -7,18 +7,17 @@ using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
-namespace Metamory.WebApi.Controllers.WebApi;
+namespace Metamory.WebApi.Controllers;
 
 
 [StopwatchFilter]
-// [AllowAnonymous]
 [Authorize(Policy = AuthPolicies.SiteIdClaim, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-public class ContentUploadController : ControllerBase
+public class UploadContentController : ControllerBase
 {
 	private readonly ContentManagementService _contentManagementService;
 
 
-	public ContentUploadController(ContentManagementService contentManagementService)
+	public UploadContentController(ContentManagementService contentManagementService)
 	{
 		_contentManagementService = contentManagementService;
 	}
@@ -82,5 +81,15 @@ public class ContentUploadController : ControllerBase
 		};
 
 		return model;
+	}
+
+
+	public class PostContentModel
+	{
+		public Stream ContentStream { get; set; }
+		public string ContentType { get; set; }
+		public string PreviousVersionId { get; set; }
+		public string Author { get; set; }
+		public string Label { get; set; }
 	}
 }

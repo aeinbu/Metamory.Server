@@ -1,6 +1,8 @@
 # Roadmap
 
-- stopwatch to logging, instead of x-time-taken header
+- Demo mode (or Dev mode) - Turning of authentication
+
+- stopwatch to logging/instumentation/monitoring instead of x-time-taken header
 
 - http caching
 

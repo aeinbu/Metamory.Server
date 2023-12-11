@@ -9,7 +9,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Metamory.WebApi/bin/Debug/net7.0/Metamory.WebApi.dll",
+            "program": "${workspaceFolder}/Metamory.WebApi/bin/Debug/net8.0/Metamory.WebApi.dll",
             "args": [],
             "cwd": "${workspaceFolder}/Metamory.WebApi",
             "stopAtEntry": false,
