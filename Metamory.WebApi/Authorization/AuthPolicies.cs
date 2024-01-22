@@ -1,4 +1,4 @@
-namespace Metamory.WebApi;
+namespace Metamory.WebApi.Authorization;
 
 
 internal static class AuthPolicies

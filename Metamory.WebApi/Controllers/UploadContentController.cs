@@ -6,6 +6,7 @@ using Metamory.WebApi.Utils;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Metamory.WebApi.Authorization;
 
 namespace Metamory.WebApi.Controllers;
 

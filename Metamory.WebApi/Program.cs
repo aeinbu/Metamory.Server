@@ -5,8 +5,10 @@ using Metamory.Api;
 using Metamory.Api.Providers.AzureStorage;
 using Metamory.Api.Providers.FileSystem;
 using Metamory.Api.Repositories;
+using Metamory.WebApi.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -48,18 +50,40 @@ internal static class Program
             };
         });
 
-        services.AddAuthorization(options =>
+        var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
+        if (noAuthMode)
         {
-            // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
-            // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
+            services.AddAuthorization(options =>
+            {
+                // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
+                // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
 
-            options.AddPolicy(AuthPolicies.EditorRole, policy => policy.RequireRole("editor"));
-            options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.RequireRole("editor", "contributor"));
-            options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.RequireRole("editor", "contributor", "reviewer"));
+                options.AddPolicy(AuthPolicies.EditorRole, policy => policy.AddRequirements(new QueryStringRequirement("editor")));
+                options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.AddRequirements(new QueryStringRequirement("editor", "contributor")));
+                options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.AddRequirements(new QueryStringRequirement("editor", "contributor", "reviewer")));
 
-            options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(new SiteIdRequirement()));
-        });
-        builder.Services.AddSingleton<IAuthorizationHandler, SiteIdRequirementHandler>();
+                var noRequirements = new AssertionRequirement(x => true);
+                options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(noRequirements));
+            });
+            builder.Services.AddSingleton<IAuthorizationHandler, QueryStringRequirementHandler>();
+        }
+        else
+        {
+            services.AddAuthorization(options =>
+            {
+                // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
+                // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
+
+                options.AddPolicy(AuthPolicies.EditorRole, policy => policy.RequireRole("editor"));
+                options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.RequireRole("editor", "contributor"));
+                options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.RequireRole("editor", "contributor", "reviewer"));
+
+                options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(new SiteIdRequirement()));
+
+
+            });
+            builder.Services.AddSingleton<IAuthorizationHandler, SiteIdRequirementHandler>();
+        }
 
         services.AddTransient<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
 

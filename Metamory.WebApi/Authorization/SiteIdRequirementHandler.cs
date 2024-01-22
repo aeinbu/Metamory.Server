@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Metamory.WebApi;
+namespace Metamory.WebApi.Authorization;
 
 
 public class SiteIdRequirement : IAuthorizationRequirement

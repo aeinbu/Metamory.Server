@@ -26,8 +26,16 @@ docker run ...
 -e Authentication__Schemes__Bearer__Authority=https://dev-se5kji3x7ce0r1mg.us.auth0.com/
 -v <localpath>/https:/https
 -v <localpath>/data:/data
+-e NoAuth=<true|false>
 ...
 ```
+
+__NOTE: When "NoAuth=true" is set, the container will not require authentication, but all URLs should use a query string for controlling the current role.__
+- ?role=editor
+- ?role=contributor
+- ?role=reviewer
+- or no querystring at all if you are just getting the current published content
+
 
 #macos & linux:
 ```bash

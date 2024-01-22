@@ -5,6 +5,7 @@ using Metamory.Api;
 using Metamory.WebApi.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Metamory.WebApi.Authorization;
 
 namespace Metamory.WebApi.Controllers;
 
