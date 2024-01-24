@@ -1,5 +1,8 @@
 # Metamory.Server
 
+## Run the server in a docker container
+Instructions are given at [aeinbu/metamory on docker hub](https://hub.docker.com/repository/docker/aeinbu/metamory/general).
+
 ## Development setup
 
 You can set the `connectionString` for the azure storage account in user-secrets, like this:
