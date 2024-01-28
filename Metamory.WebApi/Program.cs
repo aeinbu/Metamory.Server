@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using Metamory.Api;
@@ -33,6 +34,19 @@ internal static class Program
 
     private static void RegisterFrameworkServices(this WebApplicationBuilder builder)
     {
+        builder.WebHost.UseKestrel(options =>
+        {
+            options.Listen(IPAddress.Any, 5001, listenOptions =>
+            {
+                var cert_file = "/https/cert.pfx";
+                var cert_password = builder.Configuration.GetValue<string>("CertificatePassword");
+                if (!string.IsNullOrEmpty(cert_password) && File.Exists(cert_file))
+                {
+                    listenOptions.UseHttps(cert_file, cert_password);
+                }
+            });
+        });
+
         var services = builder.Services;
 
         services.AddHttpContextAccessor();
@@ -58,14 +72,14 @@ internal static class Program
                 // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
                 // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
 
-                options.AddPolicy(AuthPolicies.EditorRole, policy => policy.AddRequirements(new QueryStringRequirement("editor")));
-                options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.AddRequirements(new QueryStringRequirement("editor", "contributor")));
-                options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.AddRequirements(new QueryStringRequirement("editor", "contributor", "reviewer")));
+                options.AddPolicy(AuthPolicies.EditorRole, policy => policy.AddRequirements(new RoleRequirement("editor")));
+                options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.AddRequirements(new RoleRequirement("editor", "contributor")));
+                options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.AddRequirements(new RoleRequirement("editor", "contributor", "reviewer")));
 
                 var noRequirements = new AssertionRequirement(x => true);
                 options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(noRequirements));
             });
-            builder.Services.AddSingleton<IAuthorizationHandler, QueryStringRequirementHandler>();
+            builder.Services.AddSingleton<IAuthorizationHandler, RoleRequirementHandler>();
         }
         else
         {
@@ -79,8 +93,6 @@ internal static class Program
                 options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.RequireRole("editor", "contributor", "reviewer"));
 
                 options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(new SiteIdRequirement()));
-
-
             });
             builder.Services.AddSingleton<IAuthorizationHandler, SiteIdRequirementHandler>();
         }
@@ -122,19 +134,25 @@ internal static class Program
 
     private static void ConfigureApp(this WebApplication app)
     {
-        if (app.Environment.IsDevelopment())
+        var noAuthMode = app.Configuration.GetValue<bool>("NoAuth");
+        if (noAuthMode)
+        {
+            app.Logger.LogWarning("Metamory is running in no auth mode.");
+        }
+
+        if (app.Environment.IsDevelopment() || noAuthMode)
         {
             app.UseDeveloperExceptionPage();
         }
 
-        if (!app.Environment.IsDevelopment())
+        if (!app.Environment.IsDevelopment() && !noAuthMode)
         {
             app.UseHttpsRedirection();
         }
 
         app.UseAuthentication();
 
-        // app.UseCors();
+        app.UseCors();
 
         app.MapControllers();
     }

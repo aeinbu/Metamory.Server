@@ -40,19 +40,25 @@
 	},
 	"containerEnv": {
 		"ASPNETCORE_ENVIRONMENT": "Development",
-		"ASPNETCORE_HTTP_PORTS": "5000",
-		"ASPNETCORE_HTTPS_PORTS": "5001"
+		// "ASPNETCORE_HTTP_PORTS": "5000",
+		// "ASPNETCORE_HTTPS_PORTS": "5001"
 	},
 	"mounts": [
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/data/metamory,target=/data,type=bind,consistency=cached"
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [5000, 5001, 5432],
-	// "portsAttributes": {
-	//		"5001": {
-	//			"protocol": "https"
-	//		}
-	// }
+	"forwardPorts": [
+		5000,
+		5001
+	],
+	"portsAttributes": {
+		"5000": {
+			"protocol": "http"
+		},
+		"5001": {
+			"protocol": "https"
+		}
+	},
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet user-secrets set -p Metamory.WebApi Authentication:Schemes:Bearer:SigningKeys:0:Value PX674ghWi1nmjWJLcId0pbLPaZBRVZnBm6a4XyOZQ14= && cat artifacts/user-jwts.json > ~/.microsoft/usersecrets/c190885f-9527-40ab-b353-3b8539e29001/user-jwts.json",
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.

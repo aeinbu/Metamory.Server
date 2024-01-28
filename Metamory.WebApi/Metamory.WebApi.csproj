@@ -11,13 +11,12 @@
 
 	<PropertyGroup>
 		<ContainerRepository>aeinbu/metamory</ContainerRepository>
-		<ContainerRuntimeIdentifier>linux-arm64</ContainerRuntimeIdentifier>
 	</PropertyGroup>
-
 	<ItemGroup>
-		<!-- <ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="5000" /> -->
-		<!-- <ContainerEnvironmentVariable Include="ASPNETCORE_HTTPS_PORTS" Value="5001" /> -->
-		<!-- <ContainerEnvironmentVariable Include="ASPNETCORE_Kestrel__Certificates__Default__Path" Value="/https/cert.pfx" /> -->
+		<ContainerPort Include="5001" Type="tcp" />
+	</ItemGroup>
+	<ItemGroup>
+		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="5000" />
 	</ItemGroup>
 
 	<ItemGroup>
