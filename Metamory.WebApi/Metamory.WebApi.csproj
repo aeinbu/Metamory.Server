@@ -13,10 +13,12 @@
 		<ContainerRepository>aeinbu/metamory</ContainerRepository>
 	</PropertyGroup>
 	<ItemGroup>
+		<ContainerPort Include="5000" Type="tcp" />
 		<ContainerPort Include="5001" Type="tcp" />
 	</ItemGroup>
 	<ItemGroup>
-		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="5000" />
+		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="" />
+		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTPs_PORTS" Value="" />
 	</ItemGroup>
 
 	<ItemGroup>

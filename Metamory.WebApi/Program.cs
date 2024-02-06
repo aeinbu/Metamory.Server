@@ -22,6 +22,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        builder.RegisterEndpoints();
         builder.RegisterFrameworkServices();
         builder.RegisterMetamoryServices();
 
@@ -32,21 +33,27 @@ internal static class Program
     }
 
 
-    private static void RegisterFrameworkServices(this WebApplicationBuilder builder)
+    private static void RegisterEndpoints(this WebApplicationBuilder builder)
     {
         builder.WebHost.UseKestrel(options =>
         {
-            options.Listen(IPAddress.Any, 5001, listenOptions =>
+            var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
+            if (noAuthMode)
             {
-                var cert_file = "/https/cert.pfx";
-                var cert_password = builder.Configuration.GetValue<string>("CertificatePassword");
-                if (!string.IsNullOrEmpty(cert_password) && File.Exists(cert_file))
-                {
-                    listenOptions.UseHttps(cert_file, cert_password);
-                }
-            });
-        });
+                options.Listen(IPAddress.Any, 5000);
+            }
 
+            var cert_file = "/https/cert.pfx";
+            var cert_password = builder.Configuration.GetValue<string>("CertificatePassword");
+            if (!string.IsNullOrEmpty(cert_password) && File.Exists(cert_file))
+            {
+                options.Listen(IPAddress.Any, 5001, listenOptions => { listenOptions.UseHttps(cert_file, cert_password); });
+            }
+        });
+    }
+
+    private static void RegisterFrameworkServices(this WebApplicationBuilder builder)
+    {
         var services = builder.Services;
 
         services.AddHttpContextAccessor();
@@ -104,7 +111,6 @@ internal static class Program
         services.AddOptions();
     }
 
-
     private static void RegisterMetamoryServices(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
@@ -152,7 +158,7 @@ internal static class Program
 
         app.UseAuthentication();
 
-        app.UseCors();
+        // app.UseCors();
 
         app.MapControllers();
     }
