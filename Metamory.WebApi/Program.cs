@@ -10,6 +10,9 @@ using Metamory.WebApi.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -23,6 +26,7 @@ internal static class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.RegisterEndpoints();
+        builder.RegisterDataProtection();
         builder.RegisterFrameworkServices();
         builder.RegisterMetamoryServices();
 
@@ -50,6 +54,25 @@ internal static class Program
                 options.Listen(IPAddress.Any, 5001, listenOptions => { listenOptions.UseHttps(cert_file, cert_password); });
             }
         });
+    }
+
+    private static void RegisterDataProtection(this WebApplicationBuilder builder)
+    {
+        var services = builder.Services;
+        var dataProtection = services.AddDataProtection();
+
+        // // TODO: Remove warnings for data-encryption
+        // dataProtection.UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration()
+        // {
+        //     EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+        //     ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+        // });
+
+        // //TODO: allow to  configure using other storage mechanisms (Azure Blobs? Azure Key Vault?)
+        // if (Directory.Exists("/data-protection-keys"))
+        // {
+        //     dataProtection.PersistKeysToFileSystem(new DirectoryInfo(@"/data-protection-keys"));
+        // }
     }
 
     private static void RegisterFrameworkServices(this WebApplicationBuilder builder)

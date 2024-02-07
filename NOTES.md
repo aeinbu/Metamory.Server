@@ -9,8 +9,8 @@ dotnet publish --os linux --arch arm64 /t:PublishContainer -c Release
 
 ``` bash
 cd /workspaces/Metamory.Server/Metamory.WebApi
-dotnet publish --os linux --arch arm64 /t:PublishContainer -c Release -p ContainerImageTags='"latest;2024-02-05"'
-dotnet publish --os linux --arch x64 /t:PublishContainer -c Release -p ContainerImageTags='"latest-x64;2024-02-05-x64"'
+dotnet publish --os linux --arch arm64 /t:PublishContainer -c Release -p ContainerImageTags='"latest;2024-02-07"'
+dotnet publish --os linux --arch x64 /t:PublishContainer -c Release -p ContainerImageTags='"latest-x64;2024-02-07-x64"'
 
 # dotnet publish --os linux --arch x64 /t:PublishContainer -c Release -p ContainerImageTags=$(date +%F)-x64
 # dotnet publish --os linux --arch arm64 /t:PublishContainer -c Release -p ContainerImageTags=$(date +%F)
