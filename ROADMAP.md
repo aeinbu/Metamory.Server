@@ -1,8 +1,9 @@
 # Roadmap
 
-- Demo mode (or Dev mode) - Turning of authentication
+- Seperate server for managing vs. serving content?
+- Same server, separate ports for managing vs. serving content?
+  - Posssibility to run one or both in the same prosess?
 
-- stopwatch to logging/instumentation/monitoring instead of x-time-taken header
 
 - http caching
 

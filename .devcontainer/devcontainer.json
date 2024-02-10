@@ -1,24 +1,16 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/dotnet-postgres
 {
-	"name": "C# (.NET) and Seq",
+	"name": "C# (.NET) - Docker in docker - Prometheus",
 	"image": "mcr.microsoft.com/devcontainers/dotnet:1-8.0-bookworm",
 	// "dockerComposeFile": "docker-compose.yml",
 	// "service": "app",
 	// "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	"features": {
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
-			"moby": true,
-			"installDockerBuildx": true,
-			"version": "latest",
-			"dockerDashComposeVersion": "v2"
-		}
-		// "ghcr.io/devcontainers/features/node:1": {
-		// 	"nodeGypDependencies": true,
-		// 	"version": "lts",
-		// 	"nvmVersion": "latest"
-		// }
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers-contrib/features/prometheus:1": {}
+
 		// "ghcr.io/azure/azure-dev/azd:0": {},
 		// "ghcr.io/devcontainers/features/azure-cli:1": {
 		// 	"installUsingPython": true,
@@ -60,7 +52,7 @@
 		}
 	},
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet user-secrets set -p Metamory.WebApi Authentication:Schemes:Bearer:SigningKeys:0:Value PX674ghWi1nmjWJLcId0pbLPaZBRVZnBm6a4XyOZQ14= && cat artifacts/user-jwts.json > ~/.microsoft/usersecrets/c190885f-9527-40ab-b353-3b8539e29001/user-jwts.json",
+	"postCreateCommand": "dotnet dev-certs https && dotnet restore && dotnet tool restore && dotnet user-secrets set -p Metamory.WebApi Authentication:Schemes:Bearer:SigningKeys:0:Value PX674ghWi1nmjWJLcId0pbLPaZBRVZnBm6a4XyOZQ14= && cat artifacts/user-jwts.json > ~/.microsoft/usersecrets/c190885f-9527-40ab-b353-3b8539e29001/user-jwts.json"
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 }

@@ -1,3 +1,7 @@
+# C# build artifacts
 bin/
 obj/
 temp/
+
+# prometheus data
+/data/

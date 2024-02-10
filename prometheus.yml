@@ -1,0 +1,13 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first.rules"
+  # - "second.rules"
+
+scrape_configs:
+  - job_name: 'Metamory.Server'
+    scrape_interval: 5s # Poll every 5 seconds for a more responsive demo.
+    static_configs:
+      - targets: ["host.docker.internal:5003"]  ## Enter the HTTP port number of the demo
