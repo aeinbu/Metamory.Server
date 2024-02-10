@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Metamory.WebApi.Utils;
+namespace Metamory.WebApi.Instrumentation;
 
 
 public class StopwatchFilterAttribute : ActionFilterAttribute

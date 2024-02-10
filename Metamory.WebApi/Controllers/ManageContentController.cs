@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using Metamory.Api;
-using Metamory.WebApi.Utils;
+using Metamory.WebApi.Instrumentation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Metamory.WebApi.Authorization;
@@ -10,7 +10,8 @@ using Metamory.WebApi.Authorization;
 namespace Metamory.WebApi.Controllers;
 
 
-[StopwatchFilter]
+// [StopwatchFilter]
+[Authorize(Policy = AuthPolicies.SiteIdClaim, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 public class ContentController : ControllerBase
 {

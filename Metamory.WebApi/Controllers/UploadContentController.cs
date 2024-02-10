@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Metamory.Api;
-using Metamory.WebApi.Utils;
+using Metamory.WebApi.Instrumentation;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +11,8 @@ using Metamory.WebApi.Authorization;
 namespace Metamory.WebApi.Controllers;
 
 
-[StopwatchFilter]
+// [StopwatchFilter]
+[Authorize(Policy = AuthPolicies.SiteIdClaim, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class UploadContentController : ControllerBase
 {
 	private readonly ContentManagementService _contentManagementService;

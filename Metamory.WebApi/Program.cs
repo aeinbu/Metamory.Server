@@ -7,6 +7,7 @@ using Metamory.Api.Providers.AzureStorage;
 using Metamory.Api.Providers.FileSystem;
 using Metamory.Api.Repositories;
 using Metamory.WebApi.Authorization;
+using Metamory.WebApi.Instrumentation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
@@ -15,6 +16,9 @@ using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http.Features;
+using OpenTelemetry.Metrics;
+
 
 namespace Metamory.WebApi;
 
@@ -29,6 +33,7 @@ internal static class Program
         builder.RegisterDataProtection();
         builder.RegisterFrameworkServices();
         builder.RegisterMetamoryServices();
+        builder.RegisterInstrumentation();
 
         var app = builder.Build();
         app.ConfigureApp();
@@ -138,6 +143,38 @@ internal static class Program
         Activator.CreateInstanceFrom(assemblyFile, typeName, false, BindingFlags.CreateInstance, null, constructorParams, System.Globalization.CultureInfo.CurrentCulture, (object[])null);
     }
 
+    private static void RegisterInstrumentation(this WebApplicationBuilder builder)
+    {
+        var services = builder.Services;
+
+        services.AddOpenTelemetry()
+            .WithMetrics(builder =>
+            {
+                builder.AddPrometheusExporter();
+
+                builder.AddMeter(
+                    // "Microsoft.AspNetCore.Hosting",
+                    // "Microsoft.AspNetCore.Server.Kestrel",
+                    "Metamory.WebApi"
+                );
+
+                // builder.AddView("http.server.request.duration",
+                //     new ExplicitBucketHistogramConfiguration
+                //     {
+                //         Boundaries = new double[] { 0, 0.005, 0.01, 0.025, 0.05,
+                //        0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 }
+                //     });
+                // builder.AddView("publication.contentServed.timeTaken",
+                //     new ExplicitBucketHistogramConfiguration
+                //     {
+                //         Boundaries = new double[] { 0, 0.005, 0.01, 0.025, 0.05,
+                //        0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 }
+                //     });
+            });
+
+        services.AddSingleton<PublicationMetrics>();
+    }
+
     private static void ConfigureApp(this WebApplication app)
     {
         var noAuthMode = app.Configuration.GetValue<bool>("NoAuth");
@@ -155,6 +192,8 @@ internal static class Program
         {
             app.UseHttpsRedirection();
         }
+
+        app.UseOpenTelemetryPrometheusScrapingEndpoint();
 
         app.UseAuthentication();
 
