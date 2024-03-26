@@ -152,10 +152,12 @@ internal static class Program
             {
                 builder.AddPrometheusExporter();
 
+                builder.AddAspNetCoreInstrumentation();
+                builder.AddRuntimeInstrumentation();
                 builder.AddMeter(
                     // "Microsoft.AspNetCore.Hosting",
                     // "Microsoft.AspNetCore.Server.Kestrel",
-                    "Metamory.WebApi"
+                    PublicationMetrics.MeterName
                 );
 
                 // builder.AddView("http.server.request.duration",

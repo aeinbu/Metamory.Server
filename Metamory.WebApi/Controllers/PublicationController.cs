@@ -23,13 +23,14 @@ public class PublicationController : ControllerBase
 
 
     [AllowAnonymous]
-    [StopwatchFilter]
+    // [StopwatchFilter]
     [HttpGet, Route("content/{siteId}/{contentId}")]
     public async Task<IActionResult> GetPublishedContent(string siteId, string contentId)
     {
-        using (new TimeTakenMeter(siteId, contentId, _publicationMetrics))
+        using (var timer = new PublicationTimingMeter(siteId, contentId, _publicationMetrics))
         {
-            _publicationMetrics.ContentRequested(siteId, contentId);
+            // _publicationMetrics.ContentRequested(siteId, contentId);
+
             string publishedVersionId = await _contentManagementService.GetCurrentlyPublishedVersionIdAsync(siteId, contentId, DateTimeOffset.Now);
 
             // //TODO: cache control headers
@@ -38,12 +39,13 @@ public class PublicationController : ControllerBase
             // 	&& "\"" + publishedVersionId + "\"" == ifNoneMatchHeader.Tag)
             // {
             // 	var notModifiedMessage = new HttpResponseMessage(HttpStatusCode.NotModified);
+            //     timer.ResultType = PublicationMetrics.ResultType.ContentCached;
             // 	return notModifiedMessage;
             // }
 
             if (publishedVersionId == null)
             {
-                _publicationMetrics.ContentNotFound(siteId, contentId);
+                timer.ResultType = PublicationMetrics.ResultType.ContentNotFound;
                 return new NotFoundResult();
             }
 
@@ -51,7 +53,7 @@ public class PublicationController : ControllerBase
             var contentType = await _contentManagementService.DownloadContentToStreamAsync(siteId, contentId, publishedVersionId, stream);
             stream.Seek(0, SeekOrigin.Begin);
 
-            _publicationMetrics.ContentServed(siteId, contentId);
+            timer.ResultType = PublicationMetrics.ResultType.ContentServed;
             return new FileStreamResult(stream, contentType) { EntityTag = new EntityTagHeaderValue($@"""{publishedVersionId}""") };
         }
     }
