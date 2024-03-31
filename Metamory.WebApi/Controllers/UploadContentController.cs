@@ -12,7 +12,6 @@ namespace Metamory.WebApi.Controllers;
 
 
 [StopwatchFilter]
-[Authorize(Policy = AuthPolicies.SiteIdClaim, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class UploadContentController : ControllerBase
 {
 	private readonly ContentManagementService _contentManagementService;

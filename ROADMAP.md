@@ -13,7 +13,8 @@
 - sitesettings.csv or .json pr. siteId
   - Disable whole site
     - On - Expected functionality
-    - Off - Site is down 
+    - Off - Site is down
+    - Readonly - Site is read-only
 
 - Certificates
 - OAuth providers

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<accessControl allowRegex="false">
+  <site id="first-site">
+    <content id="test">
+
+      <allow action="Publish" mustBeAuthorized="true">
+        <claim name="role" value="editor"/>
+      </allow>
+
+      <allow action="CreateOrModify" mustBeAuthorized="true">
+        <claim name="role" value="contributor"/>
+      </allow>
+
+      <allow action="Review" mustBeAuthorized="true">
+        <claim name="role" value="reviewer"/>
+      </allow>
+
+    </content>
+  </site>
+
+</accessControl>

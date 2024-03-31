@@ -11,7 +11,6 @@ namespace Metamory.WebApi.Controllers;
 
 
 [StopwatchFilter]
-[Authorize(Policy = AuthPolicies.SiteIdClaim, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [ApiController]
 public class ContentController : ControllerBase
 {

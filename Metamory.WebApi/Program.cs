@@ -88,44 +88,19 @@ internal static class Program
         }).AddJwtBearer(options =>
         {
             options.Audience = "https://metamory.server/";
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                RoleClaimType = $"{claimNamespace}/roles",
-            };
         });
 
         var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
-        if (noAuthMode)
+        services.AddAuthorization(options =>
         {
-            services.AddAuthorization(options =>
-            {
-                // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
-                // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
+            // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
+            // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
 
-                options.AddPolicy(AuthPolicies.EditorRole, policy => policy.AddRequirements(new RoleRequirement("editor")));
-                options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.AddRequirements(new RoleRequirement("editor", "contributor")));
-                options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.AddRequirements(new RoleRequirement("editor", "contributor", "reviewer")));
-
-                var noRequirements = new AssertionRequirement(x => true);
-                options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(noRequirements));
-            });
-            builder.Services.AddSingleton<IAuthorizationHandler, RoleRequirementHandler>();
-        }
-        else
-        {
-            services.AddAuthorization(options =>
-            {
-                // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
-                // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
-
-                options.AddPolicy(AuthPolicies.EditorRole, policy => policy.RequireRole("editor"));
-                options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.RequireRole("editor", "contributor"));
-                options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.RequireRole("editor", "contributor", "reviewer"));
-
-                options.AddPolicy(AuthPolicies.SiteIdClaim, policy => policy.AddRequirements(new SiteIdRequirement()));
-            });
-            builder.Services.AddSingleton<IAuthorizationHandler, SiteIdRequirementHandler>();
-        }
+            options.AddPolicy(AuthPolicies.EditorRole, policy => policy.AddRequirements(new AccessControlRequirement(AccessControlAction.Publish)));
+            options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.AddRequirements(new AccessControlRequirement(AccessControlAction.CreateOrModify)));
+            options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.AddRequirements(new AccessControlRequirement(AccessControlAction.Review)));
+        });
+        builder.Services.AddSingleton<IAuthorizationHandler, AccessControlRequirementHandler>();
 
         services.AddTransient<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
 
