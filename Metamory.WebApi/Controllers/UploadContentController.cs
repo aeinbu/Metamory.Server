@@ -23,7 +23,7 @@ public class UploadContentController : ControllerBase
 	}
 
 
-	[Authorize(Policy = AuthPolicies.ContributorRole)]
+	[Authorize(Policy = Policies.RequireCreateOrModifyPermission)]
 	[HttpPost, Route("content/{siteId}/{contentId}")]
 	public async Task<IActionResult> Post(string siteId, string contentId, HttpRequestMessage requestMessage)
 	{

@@ -90,15 +90,15 @@ internal static class Program
             options.Audience = "https://metamory.server/";
         });
 
-        var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
+        // var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
         services.AddAuthorization(options =>
         {
             // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
             // options.AddPolicy(AuthPolicies.SiteAdmin, policy => policy.RequireRole("SiteAdmin"));
 
-            options.AddPolicy(AuthPolicies.EditorRole, policy => policy.AddRequirements(new AccessControlRequirement(AccessControlAction.Publish)));
-            options.AddPolicy(AuthPolicies.ContributorRole, policy => policy.AddRequirements(new AccessControlRequirement(AccessControlAction.CreateOrModify)));
-            options.AddPolicy(AuthPolicies.ReviewerRole, policy => policy.AddRequirements(new AccessControlRequirement(AccessControlAction.Review)));
+            options.AddPolicy(Policies.RequireChangeStatusPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.ChangeStatus)));
+            options.AddPolicy(Policies.RequireCreateOrModifyPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.CreateOrModify)));
+            options.AddPolicy(Policies.RequireReviewPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.Review)));
         });
         builder.Services.AddSingleton<IAuthorizationHandler, AccessControlRequirementHandler>();
 
@@ -123,6 +123,8 @@ internal static class Program
         ConfigureProvider(configuration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
         ConfigureProvider(configuration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
 
+        services.Configure<AccessControlConfiguration>(configuration.GetSection("AccessControl"));
+
         services.AddTransient<ContentManagementService>();
         services.AddTransient<VersioningService>();
     }
@@ -132,7 +134,7 @@ internal static class Program
         var assemblyFile = providerConfiguration.GetValue<string>("AssemblyFile");
         var typeName = providerConfiguration.GetValue<string>("TypeName") + "+Configurator";
 
-        object[] constructorParams = new object[] { configuration, services };
+        object[] constructorParams = [configuration, services];
         Activator.CreateInstanceFrom(assemblyFile, typeName, false, BindingFlags.CreateInstance, null, constructorParams, System.Globalization.CultureInfo.CurrentCulture, (object[])null);
     }
 

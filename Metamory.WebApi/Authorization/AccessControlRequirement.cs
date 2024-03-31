@@ -1,131 +1,55 @@
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Metamory.WebApi.Authorization;
 
-public class AccessControlRequirement(AccessControlAction action) : IAuthorizationRequirement
+public class AccessControlRequirement(Permission action) : IAuthorizationRequirement
 {
-    public AccessControlAction Action => action;
+    public Permission Action => action;
 }
 
+public enum Permission
+{
+    Review = 0x01,     // can see
+    CreateOrModify = 0x02,     // can upload and edit
+    ChangeStatus = 0x04      // can publish
+}
 
 public class AccessControlRequirementHandler : AuthorizationHandler<AccessControlRequirement>
 {
+    private readonly AccessControlAuthorizer _accessControlAuthorizer;
+
+    public AccessControlRequirementHandler(IOptions<AccessControlConfiguration> accessControlConfigurationAccessor)
+    {
+        var accessControlConfiguration = accessControlConfigurationAccessor.Value;
+        _accessControlAuthorizer = new AccessControlAuthorizer(accessControlConfiguration.Path);
+    }
+
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessControlRequirement requirement)
     {
         if (context.Resource is HttpContext httpContext)
         {
-            //TODO: do not read an deserialize this file on every call!!! Use a singleton or something
-            if (new AccessControlAuthorizer("authorization-noAuth.config.xml").IsAuthorized(requirement, httpContext))
+            if (_accessControlAuthorizer.IsAuthorized(requirement, httpContext))
             {
                 context.Succeed(requirement);
             }
         }
         return Task.CompletedTask;
-
-    }
-}
-
-[XmlRoot("accessControl")]
-public class AccessControl
-{
-    [XmlAttribute("allowRegex")]
-    public bool AllowRegex { get; set; }
-
-    [XmlElement("site")]
-    public List<Site> Sites { get; set; }
-
-    public class Site
-    {
-        [XmlAttribute("id")]
-        public string Id { get; set; }
-
-        [XmlElement("content")]
-        public List<Content> Contents { get; set; }
-
-        public class Content
-        {
-            [XmlAttribute("id")]
-            public string Id { get; set; }
-
-            [XmlElement("allow")]
-            public List<Allow> Allows { get; set; }
-
-            public class Allow
-            {
-                [XmlAttribute("action")]
-                public AccessControlAction Action { get; set; }
-
-                [XmlAttribute(AttributeName = "mustBeAuthorized")]
-                public bool MustBeAuthorized { get; set; }
-
-
-                [XmlElement("header", typeof(Header))]
-                [XmlElement("querystring", typeof(Querystring))]
-                public List<Rule> Rules { get; set; }
-
-                public abstract class Rule
-                {
-                    protected IEnumerable<string> ResolveRoles(IEnumerable<string> roles) => roles.SelectMany(role => role switch
-                    {
-                        "editor" => ["editor", "contributor", "reviewer"],
-                        "contributor" => ["contributor", "reviewer"],
-                        "reviewer" => ["reviewer"],
-                        _ => Array.Empty<string>()
-                    }).Distinct();
-
-
-                    public abstract bool IsMatch(HttpContext httpContext);
-                }
-
-                public class Header : Rule
-                {
-                    [XmlAttribute("name")]
-                    public string Name { get; set; }
-
-                    [XmlAttribute("value")]
-                    public string Value { get; set; }
-
-                    public override bool IsMatch(HttpContext httpContext)
-                    {
-                        var headers = httpContext.Request.Headers;
-
-                        //TODO: check ALL form values if multiple
-                        var roles = ResolveRoles(headers[Name]);
-
-                        return roles.Contains(Value);
-                    }
-                }
-
-                public class Querystring : Rule
-                {
-                    [XmlAttribute("name")]
-                    public string Name { get; set; }
-
-                    [XmlAttribute("value")]
-                    public string Value { get; set; }
-
-                    public override bool IsMatch(HttpContext httpContext)
-                    {
-                        var queryString = httpContext.Request.Query;
-
-                        //TODO: check ALL querystring values if multiple
-                        var roles = ResolveRoles(queryString[Name]);
-                        return roles.Contains(Value);
-                    }
-                }
-            }
-        }
     }
 }
 
 
-internal class AccessControlAuthorizer
+public class AccessControlAuthorizer
 {
     private readonly Func<string, string, bool> IsMatch;
 
     private readonly AccessControl _accessControl;
+
+    private readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
 
     public AccessControlAuthorizer(string path)
     {
@@ -133,13 +57,14 @@ internal class AccessControlAuthorizer
         using var textReader = new StreamReader(path);
         _accessControl = (AccessControl)serializer.Deserialize(textReader);
 
-        IsMatch = _accessControl.AllowRegex
-                ? (pattern, input) => pattern == ".*" ? true : new Regex(pattern).IsMatch(input)
-                : (pattern, input) => input == pattern;
+        Regex getRegex(string pattern) => _cache.GetOrCreate(pattern, (_) => new Regex(pattern, RegexOptions.Compiled));
 
+        IsMatch = _accessControl.AllowRegex
+                ? (pattern, input) => pattern == ".*" ? true : getRegex(pattern).IsMatch(input)
+                : (pattern, input) => input == pattern;
     }
 
-    internal bool IsAuthorized(AccessControlRequirement requirement, HttpContext httpContext)
+    public bool IsAuthorized(AccessControlRequirement requirement, HttpContext httpContext)
     {
         var siteId = (string)httpContext.GetRouteValue("siteId");
         var contentId = (string)httpContext.GetRouteValue("contentId");
@@ -155,7 +80,7 @@ internal class AccessControlAuthorizer
         //     return false;
 
         var allowingRules = matchingContents
-            .SelectMany(content => content.Allows.Where(allow => allow.Action == requirement.Action))
+            .SelectMany(content => content.Allows.Where(allow => allow.Permission == requirement.Action))
             .SelectMany(allow => allow.Rules.Where(rule => rule.IsMatch(httpContext)));
 
         return allowingRules.Any();

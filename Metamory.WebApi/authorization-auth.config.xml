@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <accessControl allowRegex="false">
-  <site id="first-site">
-    <content id="test">
 
-      <allow action="Publish" mustBeAuthorized="true">
-        <claim name="role" value="editor"/>
+  <site id=".*">
+    <content id=".*">
+
+      <allow permission="ChangeStatus" mustBeAuthorized="true">
+        <claim type="role" value="editor"/>
       </allow>
 
-      <allow action="CreateOrModify" mustBeAuthorized="true">
-        <claim name="role" value="contributor"/>
+      <allow permission="CreateOrModify" mustBeAuthorized="true">
+        <claim type="role" value="editor"/>
+        <claim type="role" value="contributor"/>
       </allow>
 
-      <allow action="Review" mustBeAuthorized="true">
-        <claim name="role" value="reviewer"/>
+      <allow permission="Review" mustBeAuthorized="true">
+        <claim type="role" value="editor"/>
+        <claim type="role" value="contributor"/>
+        <claim type="role" value="reviewer"/>
+        <username name="some-user-name" />
       </allow>
 
     </content>

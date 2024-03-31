@@ -23,7 +23,7 @@ public class ContentController : ControllerBase
     }
 
 
-    [Authorize(Policy = AuthPolicies.ReviewerRole)]
+    [Authorize(Policy = Policies.RequireReviewPermission)]
     [HttpGet, Route("content/{siteId}/{contentId}/versions")]
     public async Task<IActionResult> GetVersions(string siteId, string contentId)
     {
@@ -39,7 +39,7 @@ public class ContentController : ControllerBase
     }
 
 
-    [Authorize(Policy = AuthPolicies.ReviewerRole)]
+    [Authorize(Policy = Policies.RequireReviewPermission)]
     [HttpGet, Route("content/{siteId}/{contentId}/{versionId}")]
     public async Task<IActionResult> GetContent(string siteId, string contentId, string versionId)
     {
@@ -56,7 +56,7 @@ public class ContentController : ControllerBase
     }
 
 
-    [Authorize(Policy = AuthPolicies.EditorRole)]
+    [Authorize(Policy = Policies.RequireChangeStatusPermission)]
     [HttpPost, Route("content/{siteId}/{contentId}/{versionId}/status")]
     public async Task<IActionResult> PostStatusChange(string siteId, string contentId, string versionId, StatusChangeModel statusModel)
     {
