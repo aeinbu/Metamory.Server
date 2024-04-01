@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<accessControl allowRegex="false">
+<accessControl allowRegex="true">
 
   <site id=".*">
     <content id=".*">
 
       <allow permission="ChangeStatus" mustBeAuthorized="true">
-        <claim type="role" value="editor"/>
+        <claim type="https://metamory.server/roles" value="editor"/>
       </allow>
 
       <allow permission="CreateOrModify" mustBeAuthorized="true">
-        <claim type="role" value="editor"/>
-        <claim type="role" value="contributor"/>
+        <claim type="https://metamory.server/roles" value="editor"/>
+        <claim type="https://metamory.server/roles" value="contributor"/>
       </allow>
 
       <allow permission="Review" mustBeAuthorized="true">
-        <claim type="role" value="editor"/>
-        <claim type="role" value="contributor"/>
-        <claim type="role" value="reviewer"/>
+        <claim type="https://metamory.server/roles" value="editor"/>
+        <claim type="https://metamory.server/roles" value="contributor"/>
+        <claim type="https://metamory.server/roles" value="reviewer"/>
         <username name="some-user-name" />
       </allow>
 
