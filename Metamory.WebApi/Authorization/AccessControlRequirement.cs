@@ -81,6 +81,7 @@ public class AccessControlAuthorizer
 
         var allowingRules = matchingContents
             .SelectMany(content => content.Allows.Where(allow => allow.Permission == requirement.Action))
+            .Where(allow => allow.MustBeAuthorized ? httpContext.User.Identities.Any(identity => identity.IsAuthenticated) : true)
             .SelectMany(allow => allow.Rules.Where(rule => rule.IsMatch(httpContext)));
 
         return allowingRules.Any();

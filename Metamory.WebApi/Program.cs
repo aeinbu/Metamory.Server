@@ -87,10 +87,13 @@ internal static class Program
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         }).AddJwtBearer(options =>
         {
-            options.Audience = "https://metamory.server/";
+            // options.Audience = "https://metamory.server2/";
+            // options.TokenValidationParameters = new TokenValidationParameters
+            // {
+            //     RoleClaimType = $"{claimNamespace}/roles",
+            // };
         });
 
-        // var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
         services.AddAuthorization(options =>
         {
             // options.AddPolicy(AuthPolicies.SystemAdminRole, policy => policy.RequireRole("SystemAdmin"));
@@ -157,6 +160,7 @@ internal static class Program
         }
 
         app.UseAuthentication();
+        app.UseAuthorization();
 
         // app.UseCors();
 
