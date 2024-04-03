@@ -47,10 +47,14 @@ __NOTE: When "NoAuth=true" is set, the container will not require authentication
 This setup starts Metamory server with authentication, authorization and ssl. The base url is `https://localhost:5001/`.
 - You will need to create a certificate (cert.pfx) to use this setup.
 - You will need to have an authentication authority to use this setup.
-- You'll need to replace <your-local-pfx-folder>, <your-local-data-folder>, <your-certificate-password> and <your-authentication-authority>.
+- You will need to have an authorization config file to use this setup.
+- You'll need to replace <your-local-pfx-folder>, <your-local-data-folder>, <your-local-authorization-folder>, <your-certificate-password> and <your-authentication-authority>.
 
 ``` bash
-docker run -d -p 5001:5001 -v <your-local-pfx-folder>:/https -v <your-local-data-folder>:/data \
+docker run -d -p 5001:5001 \
+  -v <your-local-pfx-folder>:/https \
+  -v <your-local-athorization-folder>:/authorization \
+  -v <your-local-data-folder>:/data \
   -e CertificatePassword=pass \
   -e Authentication__Schemes__Bearer__Authority=<your-authentication-authority> \
   --name metamory-server aeinbu/metamory

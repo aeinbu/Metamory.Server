@@ -103,7 +103,10 @@ internal static class Program
             options.AddPolicy(Policies.RequireCreateOrModifyPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.CreateOrModify)));
             options.AddPolicy(Policies.RequireReviewPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.Review)));
         });
-        builder.Services.AddSingleton<IAuthorizationHandler, AccessControlRequirementHandler>();
+
+        var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
+        var path = noAuthMode ? "authorization-noAuth.config.xml" : "/authorization/accessControl.config.xml";
+        builder.Services.AddSingleton<IAuthorizationHandler>(sp => new AccessControlRequirementHandler(path));
 
         services.AddTransient<ClaimsPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
 
@@ -125,8 +128,6 @@ internal static class Program
 
         ConfigureProvider(configuration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
         ConfigureProvider(configuration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
-
-        services.Configure<AccessControlConfiguration>(configuration.GetSection("AccessControl"));
 
         services.AddTransient<ContentManagementService>();
         services.AddTransient<VersioningService>();

@@ -14,36 +14,12 @@ public class AccessControlRequirement(Permission action) : IAuthorizationRequire
 
 public enum Permission
 {
-    Review = 0x01,     // can see
-    CreateOrModify = 0x02,     // can upload and edit
-    ChangeStatus = 0x04      // can publish
+    Review = 0x01,          // can see
+    CreateOrModify = 0x02,  // can upload and edit
+    ChangeStatus = 0x04     // can publish
 }
 
 public class AccessControlRequirementHandler : AuthorizationHandler<AccessControlRequirement>
-{
-    private readonly AccessControlAuthorizer _accessControlAuthorizer;
-
-    public AccessControlRequirementHandler(IOptions<AccessControlConfiguration> accessControlConfigurationAccessor)
-    {
-        var accessControlConfiguration = accessControlConfigurationAccessor.Value;
-        _accessControlAuthorizer = new AccessControlAuthorizer(accessControlConfiguration.Path);
-    }
-
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessControlRequirement requirement)
-    {
-        if (context.Resource is HttpContext httpContext)
-        {
-            if (_accessControlAuthorizer.IsAuthorized(requirement, httpContext))
-            {
-                context.Succeed(requirement);
-            }
-        }
-        return Task.CompletedTask;
-    }
-}
-
-
-public class AccessControlAuthorizer
 {
     private readonly Func<string, string, bool> IsMatch;
 
@@ -51,7 +27,7 @@ public class AccessControlAuthorizer
 
     private readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
 
-    public AccessControlAuthorizer(string path)
+    public AccessControlRequirementHandler(string path)
     {
         var serializer = new XmlSerializer(typeof(AccessControl));
         using var textReader = new StreamReader(path);
@@ -62,6 +38,18 @@ public class AccessControlAuthorizer
         IsMatch = _accessControl.AllowRegex
                 ? (pattern, input) => pattern == ".*" ? true : getRegex(pattern).IsMatch(input)
                 : (pattern, input) => input == pattern;
+    }
+
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, AccessControlRequirement requirement)
+    {
+        if (context.Resource is HttpContext httpContext)
+        {
+            if (IsAuthorized(requirement, httpContext))
+            {
+                context.Succeed(requirement);
+            }
+        }
+        return Task.CompletedTask;
     }
 
     public bool IsAuthorized(AccessControlRequirement requirement, HttpContext httpContext)
