@@ -129,6 +129,7 @@ internal static class Program
         ConfigureProvider(configuration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
         ConfigureProvider(configuration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
 
+// THIS is the one for content. How to create an additional for authorization/permissions
         services.AddTransient<ContentManagementService>();
         services.AddTransient<VersioningService>();
     }

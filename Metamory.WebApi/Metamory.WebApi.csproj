@@ -12,10 +12,12 @@
 	<PropertyGroup>
 		<ContainerRepository>aeinbu/metamory</ContainerRepository>
 	</PropertyGroup>
+
 	<ItemGroup>
 		<ContainerPort Include="5000" Type="tcp" />
 		<ContainerPort Include="5001" Type="tcp" />
 	</ItemGroup>
+
 	<ItemGroup>
 		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTP_PORTS" Value="" />
 		<ContainerEnvironmentVariable Include="ASPNETCORE_HTTPs_PORTS" Value="" />
@@ -28,6 +30,13 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\Metamory.Api\Metamory.Api.csproj" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<Content Include="/workspaces/Metamory.Server/Metamory.WebApi/*.config.xml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 </Project>
