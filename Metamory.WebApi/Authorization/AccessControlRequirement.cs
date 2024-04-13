@@ -25,15 +25,15 @@ public class AccessControlRequirementHandler : AuthorizationHandler<AccessContro
 
     private readonly AccessControl _accessControl;
 
-    private readonly MemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
+    private readonly MemoryCache _regexCache = new MemoryCache(new MemoryCacheOptions());
 
     public AccessControlRequirementHandler(string path)
     {
         var serializer = new XmlSerializer(typeof(AccessControl));
-        using var textReader = new StreamReader(path);
+        using var textReader = new StreamReader(path); //TODO: Get textReader (and stream) from Metamory version store
         _accessControl = (AccessControl)serializer.Deserialize(textReader);
 
-        Regex getRegex(string pattern) => _cache.GetOrCreate(pattern, (_) => new Regex(pattern, RegexOptions.Compiled));
+        Regex getRegex(string pattern) => _regexCache.GetOrCreate(pattern, (_) => new Regex(pattern, RegexOptions.Compiled));
 
         IsMatch = _accessControl.AllowRegex
                 ? (pattern, input) => pattern == ".*" ? true : getRegex(pattern).IsMatch(input)

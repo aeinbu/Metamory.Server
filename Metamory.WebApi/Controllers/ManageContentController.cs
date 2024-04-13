@@ -17,9 +17,9 @@ public class ContentController : ControllerBase
     private readonly ContentManagementService _contentManagementService;
 
 
-    public ContentController(ContentManagementService contentManagementService)
+    public ContentController(ContentManagementServiceCatalog contentManagementServiceCatalog)
     {
-        _contentManagementService = contentManagementService;
+        _contentManagementService = contentManagementServiceCatalog.Get("content");
     }
 
 
