@@ -126,16 +126,22 @@ internal static class Program
         // new Metamory.Api.Providers.FileSystem.FileContentRepository.Configurator(builder.Configuration, services);
         // new Metamory.Api.Providers.FileSystem.FileStatusRepository.Configurator(builder.Configuration, services);
 
-        var metamoryConfiguration = configuration.GetSection("Metamory.Api");
-        ConfigureProvider(metamoryConfiguration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
-        ConfigureProvider(metamoryConfiguration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
+        var metamoryApiConfiguration = configuration.GetSection("Metamory.Api");
+        ConfigureProvider(metamoryApiConfiguration.GetSection("Providers:ContentRepository"), metamoryApiConfiguration, services);
+        ConfigureProvider(metamoryApiConfiguration.GetSection("Providers:StatusRepository"), metamoryApiConfiguration, services);
 
-// THIS is the one for content. How to create an additional for authorization/permissions
-        services.AddTransient<ContentManagementService>();
+        // THIS is the one for content. How to create an additional for authorization/permissions
         services.AddTransient<VersioningService>();
+        services.AddTransient<ContentManagementService>(svc => new ContentManagementService(
+            svc.GetService<IStatusRepository>(),
+            svc.GetService<IContentRepository>(),
+            svc.GetService<VersioningService>(),
+            svc.GetService<ICanonicalizeService>()
+            ));
+        // services.AddTransient<ContentManagementService>();
     }
 
-    private static void ConfigureProvider(IConfigurationSection providerConfiguration, ConfigurationManager configuration, IServiceCollection services)
+    private static void ConfigureProvider(IConfigurationSection providerConfiguration, IConfigurationSection configuration, IServiceCollection services)
     {
         var assemblyFile = providerConfiguration.GetValue<string>("AssemblyFile");
         var typeName = providerConfiguration.GetValue<string>("TypeName") + "+Configurator";
