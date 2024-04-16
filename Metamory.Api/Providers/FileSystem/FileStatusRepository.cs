@@ -23,7 +23,8 @@ public class FileStatusRepository : IStatusRepository
 	{
 		public Configurator(ConfigurationManager configuration, IServiceCollection services)
 		{
-			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
+            var metamoryConfiguration = configuration.GetSection("Metamory.Api");
+			services.Configure<FileSystemRepositoryConfiguration>(metamoryConfiguration.GetSection("ProviderConfiguration:FileSystemRepositoryConfiguration"));
 			services.AddTransient<IStatusRepository, FileStatusRepository>();
 		}
 	}

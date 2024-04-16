@@ -18,7 +18,8 @@ public class FileContentRepository : IContentRepository
 	{
 		public Configurator(ConfigurationManager configuration, IServiceCollection services)
 		{
-			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("FileSystemRepositoryConfiguration"));
+            var metamoryConfiguration = configuration.GetSection("Metamory.Api");
+			services.Configure<FileSystemRepositoryConfiguration>(metamoryConfiguration.GetSection("ProviderConfiguration:FileSystemRepositoryConfiguration"));
 			services.AddTransient<IContentRepository, FileContentRepository>();
             services.AddTransient<ICanonicalizeService, FileCanonicalizeService>();
 		}

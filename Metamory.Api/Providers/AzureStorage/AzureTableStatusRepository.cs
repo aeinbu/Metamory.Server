@@ -21,7 +21,8 @@ public class AzureTableStatusRepository : IStatusRepository
     {
         public Configurator(ConfigurationManager configuration, IServiceCollection services)
         {
-            services.Configure<AzureStorageRepositoryConfiguration>(configuration.GetSection("AzureStorageRepositoryConfiguration"));
+            var metamoryConfiguration = configuration.GetSection("Metamory.Api");
+            services.Configure<AzureStorageRepositoryConfiguration>(metamoryConfiguration.GetSection("ProviderConfiguration:AzureStorageRepositoryConfiguration"));
             services.AddTransient<IStatusRepository, AzureTableStatusRepository>();
             services.AddTransient<ICanonicalizeService, AzureCanonicalizeService>();
         }

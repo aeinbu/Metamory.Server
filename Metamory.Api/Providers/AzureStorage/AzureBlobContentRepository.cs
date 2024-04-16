@@ -23,7 +23,8 @@ public class AzureBlobContentRepository : IContentRepository
     {
         public Configurator(ConfigurationManager configuration, IServiceCollection services)
         {
-            services.Configure<AzureStorageRepositoryConfiguration>(configuration.GetSection("AzureStorageRepositoryConfiguration"));
+            var metamoryConfiguration = configuration.GetSection("Metamory.Api");
+            services.Configure<AzureStorageRepositoryConfiguration>(metamoryConfiguration.GetSection("ProviderConfiguration:AzureStorageRepositoryConfiguration"));
             services.AddTransient<IContentRepository, AzureBlobContentRepository>();
             services.AddTransient<ICanonicalizeService, AzureCanonicalizeService>();
         }

@@ -70,3 +70,8 @@ rm cert.crt cert.key
 ``` bash
 sudo security add-trusted-cert -d -r trustAsRoot -k /Library/Keychains/System.keychain cert.pfx
 ```
+
+## Provider settings
+See:
+- [FileProvider](./Metamory.Api/Providers/FileSystem/sample-provider-setting.json) for sample setup 
+- [AzureStorageProvider](./Metamory.Api/Providers/AzureStorage/sample-provider-setting.json) for sample setup

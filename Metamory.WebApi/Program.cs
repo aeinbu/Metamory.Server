@@ -126,8 +126,9 @@ internal static class Program
         // new Metamory.Api.Providers.FileSystem.FileContentRepository.Configurator(builder.Configuration, services);
         // new Metamory.Api.Providers.FileSystem.FileStatusRepository.Configurator(builder.Configuration, services);
 
-        ConfigureProvider(configuration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
-        ConfigureProvider(configuration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
+        var metamoryConfiguration = configuration.GetSection("Metamory.Api");
+        ConfigureProvider(metamoryConfiguration.GetSection("Providers:ContentRepository"), builder.Configuration, services);
+        ConfigureProvider(metamoryConfiguration.GetSection("Providers:StatusRepository"), builder.Configuration, services);
 
 // THIS is the one for content. How to create an additional for authorization/permissions
         services.AddTransient<ContentManagementService>();
