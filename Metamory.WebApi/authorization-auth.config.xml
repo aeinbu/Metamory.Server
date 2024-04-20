@@ -8,6 +8,10 @@
         <claim type="https://metamory.server/roles" value="editor"/>
       </allow>
 
+      <allow permission="ListContent" mustBeAuthorized="true">
+        <claim type="https://metamory.server/roles" value="editor"/>
+      </allow>
+
       <allow permission="CreateOrModify" mustBeAuthorized="true">
         <claim type="https://metamory.server/roles" value="editor"/>
         <claim type="https://metamory.server/roles" value="contributor"/>

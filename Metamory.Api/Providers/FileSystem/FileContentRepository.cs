@@ -20,11 +20,11 @@ public class FileContentRepository : IContentRepository
 		{
 			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("ProviderConfiguration:FileSystemRepositoryConfiguration"));
 			services.AddKeyedTransient<IContentRepository, FileContentRepository>(key);
-            services.AddKeyedTransient<ICanonicalizeService, FileCanonicalizeService>(key);
+			services.AddKeyedTransient<ICanonicalizeService, FileCanonicalizeService>(key);
 		}
 	}
-	
-	
+
+
 	private const string METADATA_EXTENSION = "metadata.csv";
 
 	private readonly IFileContentRepositoryConfiguration _configuration;
@@ -55,6 +55,7 @@ public class FileContentRepository : IContentRepository
 		return metadata.ContentType;
 	}
 
+
 	public async Task AddContentAsync(string siteId, string contentId, string versionId, Stream contentStream, string contentType, DateTimeOffset now, string previousVersionId, string author, string label)
 	{
 		var folderPath = Path.Combine(_configuration.ContentRootPath, siteId, contentId);
@@ -80,6 +81,7 @@ public class FileContentRepository : IContentRepository
 		await contentStream.CopyToAsync(fileStream);
 	}
 
+
 	public async Task<IEnumerable<ContentMetadataEntity>> GetVersionsAsync(string siteId, string contentId)
 	{
 		var folderPath = Path.Combine(_configuration.ContentRootPath, siteId, contentId);
@@ -96,10 +98,23 @@ public class FileContentRepository : IContentRepository
 		return await Task.WhenAll(metadataTasks);
 	}
 
+
 	private static async Task<ContentMetadataEntity> FromFile(string path)
 	{
 		using var sr = new StreamReader(path);
 		var s = await sr.ReadLineAsync();
 		return ContentMetadataEntity.FromString(s);
+	}
+
+    public Task<IEnumerable<string>> ListContentAsync(string siteId)
+    {
+		var folderPath = Path.Combine(_configuration.ContentRootPath, siteId);
+		if (!Directory.Exists(folderPath))
+		{
+			return Task.FromResult(Enumerable.Empty<string>());
+		}
+
+		var contentIds = Directory.GetDirectories(folderPath).Select(Path.GetFileName);
+		return Task.FromResult(contentIds);
 	}
 }

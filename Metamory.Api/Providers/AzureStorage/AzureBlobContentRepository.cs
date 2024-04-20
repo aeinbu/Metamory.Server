@@ -170,4 +170,10 @@ public class AzureBlobContentRepository : IContentRepository
     {
         return string.Format("{0}/{1}", contentId, versionId);
     }
+
+    public async Task<IEnumerable<string>> ListContentAsync(string siteId)
+    {
+        //TODO:
+        throw new NotImplementedException();
+    }
 }

@@ -23,6 +23,22 @@ public class ContentController : ControllerBase
     }
 
 
+    [Authorize(Policy = Policies.RequireListContentPermission)]
+    [HttpGet, Route("content/{siteId}")]
+    public async Task<IActionResult> ListContent(string siteId)
+    {
+        try
+        {
+            var listOfContent = await _contentManagementService.ListContentAsync(siteId);
+            return Ok(listOfContent);
+        }
+        catch (Exception)
+        {
+            return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+        }
+    }
+
+
     [Authorize(Policy = Policies.RequireReviewPermission)]
     [HttpGet, Route("content/{siteId}/{contentId}/versions")]
     public async Task<IActionResult> GetVersions(string siteId, string contentId)
@@ -77,11 +93,11 @@ public class ContentController : ControllerBase
     }
 
 
-    // [Authorize(Policy = AuthPolicies.EditorRole)]
-    // [HttpDelete, Route("content/{siteId}/{contentId}")]
-    // public IHttpActionResult Delete(string siteId, string contentId)
-    // {
-    // 	_contentVersioningService.DeleteContent(siteId, contentId);
-    // 	return StatusCode(HttpStatusCode.NoContent);
-    // }
+    [Authorize(Policy = Policies.RequireDeletePermission)]
+    [HttpDelete, Route("content/{siteId}/{contentId}")]
+    public async Task<IActionResult> Delete(string siteId, string contentId)
+    {
+    	await _contentManagementService.DeleteContent(siteId, contentId);
+    	return NoContent();
+    }
 }

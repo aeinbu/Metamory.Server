@@ -13,4 +13,6 @@ public interface IContentRepository
     Task AddContentAsync(string siteId, string contentId, string versionId, Stream contentStream, string contentType, DateTimeOffset now, string previousVersionId, string author, string label);
 
     Task<IEnumerable<ContentMetadataEntity>> GetVersionsAsync(string siteId, string contentId);
+
+    Task<IEnumerable<string>> ListContentAsync(string siteId);
 }

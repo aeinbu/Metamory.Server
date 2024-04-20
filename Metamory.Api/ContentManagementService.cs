@@ -7,12 +7,14 @@ using Metamory.Api.Repositories;
 
 namespace Metamory.Api;
 
+
 public class ContentManagementService : IDisposable
 {
 	private readonly IStatusRepository _statusRepository;
 	private readonly IContentRepository _contentRepository;
 	private readonly VersioningService _versioningService;
 	private readonly ICanonicalizeService _canonicalizeService;
+
 
 	public ContentManagementService(IStatusRepository statusRepository,
 		IContentRepository contentRepository,
@@ -25,6 +27,7 @@ public class ContentManagementService : IDisposable
 		_canonicalizeService = canonicalizeService;
 	}
 
+
 	public async Task<string> GetCurrentlyPublishedVersionIdAsync(string siteId, string contentId, DateTimeOffset now)
 	{
 		siteId = _canonicalizeService.Canonicalize(siteId);
@@ -35,6 +38,7 @@ public class ContentManagementService : IDisposable
 		return publishedVersionId;
 	}
 
+
 	public async Task<string> DownloadPublishedContentToStreamAsync(string siteId, string contentId, DateTimeOffset now, Stream target)
 	{
 		var publishedVersionId = await GetCurrentlyPublishedVersionIdAsync(siteId, contentId, now);
@@ -43,6 +47,7 @@ public class ContentManagementService : IDisposable
 		var contentType = await DownloadContentToStreamAsync(siteId, contentId, publishedVersionId, target);
 		return contentType;
 	}
+
 
 	public async Task ChangeStatusForContentAsync(string siteId, string contentId, string versionId,
 		string status, string responsible, DateTimeOffset now, DateTimeOffset? startDate)
@@ -55,6 +60,15 @@ public class ContentManagementService : IDisposable
 
 		await _statusRepository.AddStatusEntryAsync(siteId, statusEntry);
 	}
+
+
+    public async Task<IEnumerable<string>> ListContentAsync(string siteId)
+    {
+		siteId = _canonicalizeService.Canonicalize(siteId);
+
+		return await _contentRepository.ListContentAsync(siteId);
+    }
+
 
 	public async Task<ContentMetadata> GetVersionsAsync(string siteId, string contentId)
 	{
@@ -83,11 +97,13 @@ public class ContentManagementService : IDisposable
 		};
 	}
 
+
 	public async Task<ContentMetadata.Version> GetVersionAsync(string siteId, string contentId, string versionId)
 	{
 		var metadata = await GetVersionsAsync(siteId, contentId);
 		return metadata.Versions.SingleOrDefault(x => x.VersionId == versionId);
 	}
+
 
 	public async Task<string> DownloadContentToStreamAsync(string siteId, string contentId, string versionId, Stream target)
 	{
@@ -96,10 +112,11 @@ public class ContentManagementService : IDisposable
 		versionId = _canonicalizeService.Canonicalize(versionId);
 
 		var contentType = await _contentRepository.DownloadContentToStreamAsync(siteId, contentId, versionId, target);
-		//TODO: Throw an appropriate exception for File Not Found or File Not Published
+		//TODO: Throw an appropriate exception for File Not Found
 
 		return contentType;
 	}
+
 
 	public async Task<ContentMetadata.Version> StoreAsync(string siteId,
 		string contentId,
@@ -135,16 +152,29 @@ public class ContentManagementService : IDisposable
 		};
 	}
 
-	//public void DeleteContent(string siteId, string contentId)
-	//{
-	//	siteId = _canonicalizeService.Canonicalize(siteId);
-	//	contentId = _canonicalizeService.Canonicalize(contentId);
 
-	//	throw new NotImplementedException();
-	//}
+	public async Task DeleteContent(string siteId, string contentId)
+	{
+		siteId = _canonicalizeService.Canonicalize(siteId);
+		contentId = _canonicalizeService.Canonicalize(contentId);
+
+		// DeleteContent should delete ALL versions of the content.
+		// For deleting a single version, consider implementing a DeleteVersion method.
+
+		//TODO: What should a delete do? MarkAsDeleted, archive to zip, or actually delete?
+		// Should it be possible to delete content that
+		// - has been published? (No, maybe archive to zip!)
+		// - is currently published? (No!)
+		// - has a future publish date? (No?)
+		// - was never published, and has no future publish date? (yes, delete or archive to zip)
+
+		throw new NotImplementedException();
+	}
+
 
 	void IDisposable.Dispose()
 	{
 		// ...
 	}
+
 }

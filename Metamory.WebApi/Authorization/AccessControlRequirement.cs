@@ -14,9 +14,10 @@ public class AccessControlRequirement(Permission action) : IAuthorizationRequire
 
 public enum Permission
 {
-    Review = 0x01,          // can see
+    Review = 0x01,          // can see a content
     CreateOrModify = 0x02,  // can upload and edit
-    ChangeStatus = 0x04     // can publish
+    ChangeStatus = 0x04,    // can publish
+    ListContent = 0x08      // can list content ids
 }
 
 public class AccessControlRequirementHandler : AuthorizationHandler<AccessControlRequirement>

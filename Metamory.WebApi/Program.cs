@@ -102,6 +102,7 @@ internal static class Program
             options.AddPolicy(Policies.RequireChangeStatusPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.ChangeStatus)));
             options.AddPolicy(Policies.RequireCreateOrModifyPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.CreateOrModify)));
             options.AddPolicy(Policies.RequireReviewPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.Review)));
+            options.AddPolicy(Policies.RequireListContentPermission, policy => policy.AddRequirements(new AccessControlRequirement(Permission.ListContent)));
         });
 
         var noAuthMode = builder.Configuration.GetValue<bool>("NoAuth");
@@ -125,7 +126,6 @@ internal static class Program
 
         // new Metamory.Api.Providers.FileSystem.FileContentRepository.Configurator(builder.Configuration, services);
         // new Metamory.Api.Providers.FileSystem.FileStatusRepository.Configurator(builder.Configuration, services);
-
 
         services.AddTransient<VersioningService>();
         foreach (var keyedConfigurationSection in configuration.GetSection("Metamory.Api").GetChildren())

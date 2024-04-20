@@ -28,6 +28,11 @@ public class PublicationController : ControllerBase
     {
         string publishedVersionId = await _contentManagementService.GetCurrentlyPublishedVersionIdAsync(siteId, contentId, DateTimeOffset.Now);
 
+        if (publishedVersionId == null)
+        {
+            return new NotFoundResult();
+        }
+
         // //TODO: cache control headers
         // var ifNoneMatchHeader = Request.Headers.IfNoneMatch.SingleOrDefault();
         // if (ifNoneMatchHeader != null
@@ -36,11 +41,6 @@ public class PublicationController : ControllerBase
         // 	var notModifiedMessage = new HttpResponseMessage(HttpStatusCode.NotModified);
         // 	return notModifiedMessage;
         // }
-
-        if (publishedVersionId == null)
-        {
-            return new NotFoundResult();
-        }
 
         var stream = new MemoryStream();
         var contentType = await _contentManagementService.DownloadContentToStreamAsync(siteId, contentId, publishedVersionId, stream);

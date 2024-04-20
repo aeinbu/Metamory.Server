@@ -9,6 +9,11 @@
         <querystring name="role" value="editor"/>
       </allow>
 
+      <allow permission="ListContent" mustBeAuthorized="false">
+        <header name="role" value="editor"/>
+        <querystring name="role" value="editor"/>
+      </allow>
+
       <allow permission="CreateOrModify" mustBeAuthorized="false">
         <header name="role" value="editor"/>
         <header name="role" value="contributor"/>
