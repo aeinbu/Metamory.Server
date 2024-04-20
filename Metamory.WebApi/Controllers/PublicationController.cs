@@ -16,7 +16,7 @@ public class PublicationController : ControllerBase
     private readonly ContentManagementService _contentManagementService;
 
 
-    public PublicationController(ContentManagementService contentManagementService)
+    public PublicationController([FromKeyedServices("content")]ContentManagementService contentManagementService)
     {
         _contentManagementService = contentManagementService;
     }

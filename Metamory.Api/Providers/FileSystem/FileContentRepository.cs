@@ -16,11 +16,11 @@ public class FileContentRepository : IContentRepository
 {
 	public class Configurator
 	{
-		public Configurator(IConfigurationSection configuration, IServiceCollection services)
+		public Configurator(IConfigurationSection configuration, IServiceCollection services, string key)
 		{
 			services.Configure<FileSystemRepositoryConfiguration>(configuration.GetSection("ProviderConfiguration:FileSystemRepositoryConfiguration"));
-			services.AddTransient<IContentRepository, FileContentRepository>();
-            services.AddTransient<ICanonicalizeService, FileCanonicalizeService>();
+			services.AddKeyedTransient<IContentRepository, FileContentRepository>(key);
+            services.AddKeyedTransient<ICanonicalizeService, FileCanonicalizeService>(key);
 		}
 	}
 	

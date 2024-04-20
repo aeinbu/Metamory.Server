@@ -17,7 +17,7 @@ public class ContentController : ControllerBase
     private readonly ContentManagementService _contentManagementService;
 
 
-    public ContentController(ContentManagementService contentManagementService)
+    public ContentController([FromKeyedServices("content")]ContentManagementService contentManagementService)
     {
         _contentManagementService = contentManagementService;
     }

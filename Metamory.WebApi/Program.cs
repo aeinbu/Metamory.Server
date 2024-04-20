@@ -126,27 +126,31 @@ internal static class Program
         // new Metamory.Api.Providers.FileSystem.FileContentRepository.Configurator(builder.Configuration, services);
         // new Metamory.Api.Providers.FileSystem.FileStatusRepository.Configurator(builder.Configuration, services);
 
-        var metamoryApiConfiguration = configuration.GetSection("Metamory.Api");
-        ConfigureProvider(metamoryApiConfiguration.GetSection("Providers:ContentRepository"), metamoryApiConfiguration, services);
-        ConfigureProvider(metamoryApiConfiguration.GetSection("Providers:StatusRepository"), metamoryApiConfiguration, services);
 
-        // THIS is the one for content. How to create an additional for authorization/permissions
         services.AddTransient<VersioningService>();
-        services.AddTransient<ContentManagementService>(svc => new ContentManagementService(
-            svc.GetService<IStatusRepository>(),
-            svc.GetService<IContentRepository>(),
-            svc.GetService<VersioningService>(),
-            svc.GetService<ICanonicalizeService>()
-            ));
-        // services.AddTransient<ContentManagementService>();
+        foreach (var keyedConfigurationSection in configuration.GetSection("Metamory.Api").GetChildren())
+        {
+            string key = keyedConfigurationSection.Key;
+            foreach (var providerSection in keyedConfigurationSection.GetSection("Providers").GetChildren())
+            {
+                ConfigureProvider(key, providerSection, keyedConfigurationSection, services);
+            }
+
+            services.AddKeyedTransient(key, (svc, _) => new ContentManagementService(
+                svc.GetKeyedService<IStatusRepository>(key),
+                svc.GetKeyedService<IContentRepository>(key),
+                svc.GetService<VersioningService>(),
+                svc.GetKeyedService<ICanonicalizeService>(key)
+                ));
+        }
     }
 
-    private static void ConfigureProvider(IConfigurationSection providerConfiguration, IConfigurationSection configuration, IServiceCollection services)
+    private static void ConfigureProvider(string key, IConfigurationSection providerConfiguration, IConfigurationSection configuration, IServiceCollection services)
     {
         var assemblyFile = providerConfiguration.GetValue<string>("AssemblyFile");
         var typeName = providerConfiguration.GetValue<string>("TypeName") + "+Configurator";
 
-        object[] constructorParams = [configuration, services];
+        object[] constructorParams = [configuration, services, key];
         Activator.CreateInstanceFrom(assemblyFile, typeName, false, BindingFlags.CreateInstance, null, constructorParams, System.Globalization.CultureInfo.CurrentCulture, (object[])null);
     }
 

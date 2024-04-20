@@ -17,7 +17,7 @@ public class UploadContentController : ControllerBase
 	private readonly ContentManagementService _contentManagementService;
 
 
-	public UploadContentController(ContentManagementService contentManagementService)
+	public UploadContentController([FromKeyedServices("content")]ContentManagementService contentManagementService)
 	{
 		_contentManagementService = contentManagementService;
 	}
