@@ -8,42 +8,42 @@ namespace Metamory.Api;
 
 public class VersioningService
 {
-	public string GetCurrentlyPublishedVersion(DateTimeOffset now, IEnumerable<IContentStatusEntity> statusEntries)
+	public string GetCurrentlyPublishedVersion(DateTimeOffset now,
+		IEnumerable<IContentStatusEntity> statusEntries,
+		out List<string> previouslyPublishedVersions,
+		out List<string> futurePublishedVersions)
 	{
+		previouslyPublishedVersions = new();
+		futurePublishedVersions = new();
+
 		var statusEntriesBeforeNow = from entry in statusEntries
 									 where entry.StartTime <= now
 									 orderby entry.Timestamp
 									 select entry;
 
-		string versionId = null;
+		string currentlyPublishedVersionId = null;
 		foreach (var entry in statusEntriesBeforeNow)
 		{
-			if (entry.VersionId == versionId)
+			if (entry.StartTime <= now)
 			{
-				versionId = null;
+				if (entry.VersionId == currentlyPublishedVersionId)
+				{
+					previouslyPublishedVersions.Add(currentlyPublishedVersionId);
+					currentlyPublishedVersionId = null;
+				}
+				if (entry.Status == "Published")
+				{
+					currentlyPublishedVersionId = entry.VersionId;
+				}
 			}
-			if (entry.Status == "Published")
-			{
-				versionId = entry.VersionId;
+			else{
+				if (entry.Status == "Published")
+				{
+					futurePublishedVersions.Add(entry.VersionId);
+				}
 			}
 		}
 
-		return versionId;
-	}
-
-	public Dictionary<string, string> GetCurrentStatuses(DateTimeOffset now, IEnumerable<IContentStatusEntity> statusEntries)
-	{
-		var statusEntriesBeforeNow = from entry in statusEntries
-									 where entry.StartTime <= now
-									 orderby entry.Timestamp
-									 select entry;
-
-		Dictionary<string, string> currentStatuses = new();
-		foreach (var entry in statusEntriesBeforeNow)
-		{
-			currentStatuses[entry.VersionId] = entry.Status;
-		}
-
-		return currentStatuses;
+		return currentlyPublishedVersionId;
 	}
 }

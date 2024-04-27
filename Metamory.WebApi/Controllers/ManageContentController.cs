@@ -6,6 +6,7 @@ using Metamory.WebApi.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Metamory.WebApi.Authorization;
+using Metamory.Api.Repositories;
 
 namespace Metamory.WebApi.Controllers;
 
@@ -29,7 +30,7 @@ public class ContentController : ControllerBase
     {
         try
         {
-            var listOfContent = await _contentManagementService.ListContentAsync(siteId);
+            var listOfContent = await _contentManagementService.ListContentAsync(siteId, ListContentOptions.AllContent, ListVersionOptions.AllVersions);
             return Ok(listOfContent);
         }
         catch (Exception)
@@ -45,7 +46,7 @@ public class ContentController : ControllerBase
     {
         try
         {
-            var versions = await _contentManagementService.GetVersionsAsync(siteId, contentId);
+            var versions = await _contentManagementService.GetVersionsAsync(siteId, contentId, ListVersionOptions.AllVersions);
             return Ok(versions);
         }
         catch (Exception)

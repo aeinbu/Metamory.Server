@@ -34,7 +34,7 @@ public class ContentManagementService : IDisposable
 		contentId = _canonicalizeService.Canonicalize(contentId);
 
 		var statusEntries = await _statusRepository.GetStatusEntriesAsync(siteId, contentId);
-		var publishedVersionId = _versioningService.GetCurrentlyPublishedVersion(now, statusEntries);
+		var publishedVersionId = _versioningService.GetCurrentlyPublishedVersion(now, statusEntries, out var _, out var _);
 		return publishedVersionId;
 	}
 
@@ -62,15 +62,36 @@ public class ContentManagementService : IDisposable
 	}
 
 
-    public async Task<IEnumerable<string>> ListContentAsync(string siteId)
-    {
+	public async Task<IEnumerable<ListContentEntry>> ListContentAsync(string siteId,
+	ListContentOptions contentOptions, ListVersionOptions versionOptions)
+	{
 		siteId = _canonicalizeService.Canonicalize(siteId);
 
-		return await _contentRepository.ListContentAsync(siteId);
-    }
+		bool Filter(ListContentEntry entry)
+		{
+			if (contentOptions.HasFlag(ListContentOptions.AllContent))
+				return true;
+
+			if (contentOptions.HasFlag(ListContentOptions.UnpublishedContent) && entry.ContentMetadata.PublishedVersionId == null)
+				return true;
+			
+			if (contentOptions.HasFlag(ListContentOptions.PublishedContent) && entry.ContentMetadata.PublishedVersionId != null)
+				return true;
+
+			throw new NotImplementedException();
+		}
+
+		var contentList = await _contentRepository.ListContentAsync(siteId);
+		var entries = await Task.WhenAll(contentList.Select(async contentId => new ListContentEntry
+		{
+			ContentId = contentId,
+			ContentMetadata = await GetVersionsAsync(siteId, contentId, versionOptions)
+		}));
+		return entries.Where(Filter);
+	}
 
 
-	public async Task<ContentMetadata> GetVersionsAsync(string siteId, string contentId)
+	public async Task<ContentMetadata> GetVersionsAsync(string siteId, string contentId, ListVersionOptions versionOptions)
 	{
 		siteId = _canonicalizeService.Canonicalize(siteId);
 		contentId = _canonicalizeService.Canonicalize(contentId);
@@ -79,11 +100,39 @@ public class ContentManagementService : IDisposable
 		var statusEntries = await _statusRepository.GetStatusEntriesAsync(siteId, contentId);
 
 		var now = DateTimeOffset.Now;
-		var publishedVersionId = _versioningService.GetCurrentlyPublishedVersion(now, statusEntries);
+		var publishedVersionId = _versioningService.GetCurrentlyPublishedVersion(now, statusEntries, out var allPreviouslyPublishedVersions, out var allFuturePublishedVersions);
+		var allPublishedVersions = new List<string> { publishedVersionId }
+			.Concat(allPreviouslyPublishedVersions)
+			.Concat(allFuturePublishedVersions);
+		var latestVersionId = versions.MaxBy(version => version.Timestamp).VersionId;
+
+		bool Filter(ContentMetadataEntity version)
+		{
+			if (versionOptions.HasFlag(ListVersionOptions.AllVersions))
+				return true;
+
+			if (versionOptions.HasFlag(ListVersionOptions.LatestVersion))
+				return version.VersionId == latestVersionId;
+
+			if (versionOptions.HasFlag(ListVersionOptions.AllUnpublishedVersions))
+				return allPublishedVersions.Contains(version.VersionId) == false;
+
+			if (versionOptions.HasFlag(ListVersionOptions.CurrentlyPublishedVersion))
+				return version.VersionId == publishedVersionId;
+
+			if (versionOptions.HasFlag(ListVersionOptions.AllPreviouslyPublishedVersions))
+				return allPreviouslyPublishedVersions.Contains(version.VersionId);
+
+			if (versionOptions.HasFlag(ListVersionOptions.AllFuturePublishedVersions))
+				return allFuturePublishedVersions.Contains(version.VersionId);
+
+			throw new NotImplementedException();
+		}
 
 		return new ContentMetadata
 		{
 			Versions = from version in versions
+					   where Filter(version)
 					   orderby version.Timestamp
 					   select new ContentMetadata.Version
 					   {
@@ -95,13 +144,6 @@ public class ContentManagementService : IDisposable
 					   },
 			PublishedVersionId = publishedVersionId
 		};
-	}
-
-
-	public async Task<ContentMetadata.Version> GetVersionAsync(string siteId, string contentId, string versionId)
-	{
-		var metadata = await GetVersionsAsync(siteId, contentId);
-		return metadata.Versions.SingleOrDefault(x => x.VersionId == versionId);
 	}
 
 
@@ -176,5 +218,14 @@ public class ContentManagementService : IDisposable
 	{
 		// ...
 	}
-
 }
+
+
+public static class AsyncEnumerableExtensions
+{
+	public static async Task<IEnumerable<T>> AwaitAll<T>(this IEnumerable<Task<T>> tasks)
+	{
+		return await Task.WhenAll(tasks);
+	}
+}
+
