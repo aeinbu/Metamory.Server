@@ -202,6 +202,7 @@ public class ContentManagementService : IDisposable
 
 		// DeleteContent should delete ALL versions of the content.
 		// For deleting a single version, consider implementing a DeleteVersion method.
+		// For deleting all unpublished versions, consider implementing a Cleanup/Compact/DeleteAllUnpublishedVersions method.
 
 		//TODO: What should a delete do? MarkAsDeleted, archive to zip, or actually delete?
 		// Should it be possible to delete content that
