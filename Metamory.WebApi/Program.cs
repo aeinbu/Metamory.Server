@@ -48,7 +48,7 @@ internal static class Program
             }
 
             var cert_file = "/https/cert.pfx";
-            var cert_password = builder.Configuration.GetValue<string>("CertificatePassword");
+            var cert_password = builder.Configuration.GetValue<string>("CertificatePassword")?.TrimEnd('\n', '\r');
             if (!string.IsNullOrEmpty(cert_password) && File.Exists(cert_file))
             {
                 options.Listen(IPAddress.Any, 5001, listenOptions => { listenOptions.UseHttps(cert_file, cert_password); });
